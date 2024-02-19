@@ -33,12 +33,15 @@ class APIs {
 
         final vpn = Vpn.fromJson(tempJson);
 
-        // Group VPNs by country and select the one with the highest speed
-        if (!countryToHighestSpeedVpn.containsKey(vpn.countryLong)) {
-          countryToHighestSpeedVpn[vpn.countryLong] = vpn;
-        } else {
-          if (vpn.speed > countryToHighestSpeedVpn[vpn.countryLong]!.speed) {
+        // Additional checks for active and stable connection
+        if (vpn.speed > 0 && double.parse(vpn.ping) <= 500) {
+          // Group VPNs by country and select the one with the highest speed
+          if (!countryToHighestSpeedVpn.containsKey(vpn.countryLong)) {
             countryToHighestSpeedVpn[vpn.countryLong] = vpn;
+          } else {
+            if (vpn.speed > countryToHighestSpeedVpn[vpn.countryLong]!.speed) {
+              countryToHighestSpeedVpn[vpn.countryLong] = vpn;
+            }
           }
         }
       }
