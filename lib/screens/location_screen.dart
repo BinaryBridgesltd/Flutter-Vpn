@@ -1,8 +1,10 @@
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:lottie/lottie.dart';
+import 'package:vpn_basic_project/controllers/home_controller.dart';
 
 import '../controllers/location_controller.dart';
 import '../controllers/native_ad_controller.dart';
@@ -16,6 +18,7 @@ class LocationScreen extends StatelessWidget {
 
   final _controller = LocationController();
   final _adController = NativeAdController();
+  final _homeController = Get.put(HomeController());
 
   @override
   Widget build(BuildContext context) {
@@ -41,8 +44,12 @@ class LocationScreen extends StatelessWidget {
               padding: const EdgeInsets.only(right: 20.0),
               child: IconButton(
                   onPressed: () => {
-                        VpnEngine.stopVpn(),
                         _controller.getVpnData(),
+                        if (_homeController.vpnState.value ==
+                            VpnEngine.vpnConnected)
+                          {
+                            VpnEngine.stopVpn(),
+                          }
                       },
                   icon: Icon(CupertinoIcons.refresh)),
             ),

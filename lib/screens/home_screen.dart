@@ -20,7 +20,7 @@ import 'network_test_screen.dart';
 class HomeScreen extends StatelessWidget {
   HomeScreen({super.key});
 
-  final _controller = Get.put(HomeController());
+  final HomeController _controller = Get.put(HomeController());
 
   @override
   Widget build(BuildContext context) {
@@ -136,7 +136,9 @@ class HomeScreen extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           HomeCard(
-            subtitle: '${data?.byteIn != null ? data!.byteIn : '0.00 kbps'}',
+            subtitle: _controller.vpnState.value == VpnEngine.vpnConnected
+                ? '${data?.byteIn != null ? data!.byteIn : '0.00 kbps'}'
+                : '0.00 kbps',
             title: 'DOWNLOAD',
             icon: Icons.arrow_downward_rounded,
           ),
@@ -145,7 +147,9 @@ class HomeScreen extends StatelessWidget {
             thickness: 1.5,
           ),
           HomeCard(
-            subtitle: '${data?.byteOut != null ? data!.byteOut : '0.00 kbps'}',
+            subtitle: _controller.vpnState.value == VpnEngine.vpnConnected
+                ? '${data?.byteOut != null ? data!.byteOut : '0.00 kbps'}'
+                : '0.00 kbps',
             title: 'UPLOAD',
             icon: Icons.arrow_upward_rounded,
           ),
@@ -230,7 +234,16 @@ class HomeScreen extends StatelessWidget {
       child: Semantics(
         button: true,
         child: InkWell(
-          onTap: () => Get.to(() => LocationScreen()),
+          onTap: () async {
+            final result = await Get.to(() => LocationScreen());
+            if (result != null && result is String) {
+              // If a location is selected, update the UI
+              _controller.vpn.update((val) {
+                val!.countryShort = result.split(':')[0];
+                val.countryLong = result.split(':')[1];
+              });
+            }
+          },
           child: Container(
             decoration: BoxDecoration(
               boxShadow: Theme.of(context).containerShadow,
