@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:vpn_basic_project/controllers/internet_status_controller.dart';
-import 'package:vpn_basic_project/screens/home_screen.dart';
 
 import 'helpers/ad_helper.dart';
 import 'helpers/config.dart';
@@ -41,22 +39,11 @@ Future<void> main() async {
 class MyApp extends StatelessWidget {
   MyApp({super.key});
 
-  final InternetStatus internetStatusController = InternetStatus();
-
   @override
   Widget build(BuildContext context) {
     return GetMaterialApp(
       title: 'Binary Bridges VPN',
-      home: GetBuilder<InternetStatus>(
-        init: internetStatusController,
-        builder: (context) {
-          return StartupScreen();
-        },
-      ),
-      getPages: [
-        GetPage(name: '/startup', page: () => StartupScreen()),
-        GetPage(name: '/home', page: () => HomeScreen()),
-      ],
+      home: StartupScreen(),
 
       //theme
       theme: ThemeData(

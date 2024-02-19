@@ -42,7 +42,7 @@ dependencies:
   # For Remote Config
   firebase_remote_config: ^4.2.3
 
-  connectivity_plus: ^5.0.2
+  #connectivity_plus: ^5.0.2
 
 
   flutter_launcher_icons: "^0.13.1"

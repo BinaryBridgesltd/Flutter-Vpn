@@ -9,7 +9,7 @@ class Config {
     "interstitial_ad": "ca-app-pub-3940256099942544/1033173712",
     "native_ad": "ca-app-pub-3940256099942544/2247696110",
     "rewarded_ad": "ca-app-pub-3940256099942544/5224354917",
-    "show_ads": true
+    "show_ads": false
   };
 
   static Future<void> initConfig() async {

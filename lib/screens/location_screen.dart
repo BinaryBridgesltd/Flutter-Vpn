@@ -1,10 +1,10 @@
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:lottie/lottie.dart';
 import 'package:vpn_basic_project/controllers/home_controller.dart';
+import 'package:vpn_basic_project/helpers/config.dart';
 
 import '../controllers/location_controller.dart';
 import '../controllers/native_ad_controller.dart';
@@ -56,8 +56,9 @@ class LocationScreen extends StatelessWidget {
           ],
         ),
 
-        bottomNavigationBar:
-            _adController.ad != null && _adController.adLoaded.isTrue
+        bottomNavigationBar: Config.hideAds
+            ? null
+            : _adController.ad != null && _adController.adLoaded.isTrue
                 ? SafeArea(
                     child: SizedBox(
                         height: 85, child: AdWidget(ad: _adController.ad!)))
