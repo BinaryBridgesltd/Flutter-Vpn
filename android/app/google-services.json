@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "276599840260",
+    "project_id": "binary-bridges-vpn",
+    "storage_bucket": "binary-bridges-vpn.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:276599840260:android:1f73d295f8a9e026ce9f51",
+        "android_client_info": {
+          "package_name": "com.binarybridges.vpn"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAJH944FHMJQHocSbAY5pi0CbtwT_QQ2ks"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
