@@ -13,7 +13,6 @@ import android.provider.Settings;
 import android.util.Log;
 import android.widget.Toast;
 
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
@@ -34,13 +33,10 @@ import de.blinkt.openvpn.core.VPNLaunchHelper;
 import io.flutter.embedding.android.FlutterActivity;
 import io.flutter.embedding.engine.FlutterEngine;
 import io.flutter.plugin.common.EventChannel;
-import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
-import io.flutter.plugin.common.MethodChannel.MethodCallHandler;
-import io.flutter.plugin.common.MethodChannel.Result;
+
 
 public class MainActivity extends FlutterActivity {
-    
     private MethodChannel vpnControlMethod;
     private EventChannel vpnControlEvent;
     private EventChannel vpnStatusEvent;
@@ -156,48 +152,45 @@ public class MainActivity extends FlutterActivity {
         });
 
         vpnControlMethod = new MethodChannel(flutterEngine.getDartExecutor().getBinaryMessenger(), METHOD_CHANNEL_VPN_CONTROL);
-        vpnControlMethod.setMethodCallHandler(new MethodCallHandler() {
-            @Override
-            public void onMethodCall(MethodCall call, Result result) {
-                switch (call.method) {
-                    case "stop":
-                        OpenVPNThread.stop();
-                        setStage("disconnected");
-                        break;
-                    case "start":
-                        config = call.argument("config");
-                        name = call.argument("country");
-                        username = call.argument("username");
-                        password = call.argument("password");
+        vpnControlMethod.setMethodCallHandler((call, result) -> {
+            switch (call.method) {
+                case "stop":
+                    OpenVPNThread.stop();
+                    setStage("disconnected");
+                    break;
+                case "start":
+                    config = call.argument("config");
+                    name = call.argument("country");
+                    username = call.argument("username");
+                    password = call.argument("password");
 
-                        if (call.argument("dns1") != null) dns1 = call.argument("dns1");
-                        if (call.argument("dns2") != null) dns2 = call.argument("dns2");
+                    if (call.argument("dns1") != null) dns1 = call.argument("dns1");
+                    if (call.argument("dns2") != null) dns2 = call.argument("dns2");
 
-                        bypassPackages = call.argument("bypass_packages");
+                    bypassPackages = call.argument("bypass_packages");
 
-                        if (config == null || name == null) {
-                            Log.e(TAG, "Config not valid!");
-                            return;
-                        }
+                    if (config == null || name == null) {
+                        Log.e(TAG, "Config not valid!");
+                        return;
+                    }
 
-                        prepareVPN();
-                        break;
-                    case "refresh":
-                        updateVPNStages();
-                        break;
-                    case "refresh_status":
-                        updateVPNStatus();
-                        break;
-                    case "stage":
-                        result.success(OpenVPNService.getStatus());
-                        break;
-                    case "kill_switch":
-                        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
-                            Intent intent = new Intent(Settings.ACTION_VPN_SETTINGS);
-                            startActivity(intent);
-                        }
-                        break;
-                }
+                    prepareVPN();
+                    break;
+                case "refresh":
+                    updateVPNStages();
+                    break;
+                case "refresh_status":
+                    updateVPNStatus();
+                    break;
+                case "stage":
+                    result.success(OpenVPNService.getStatus());
+                    break;
+                case "kill_switch":
+                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+                        Intent intent = new Intent(Settings.ACTION_VPN_SETTINGS);
+                        startActivity(intent);
+                    }
+                    break;
             }
         });
 

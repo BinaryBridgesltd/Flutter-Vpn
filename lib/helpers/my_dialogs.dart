@@ -12,11 +12,12 @@ class MyDialogs {
   static error({required String msg}) {
     Get.snackbar('Error', msg,
         colorText: Colors.white,
-        backgroundColor: Colors.redAccent.withOpacity(.9));
+        backgroundColor: Colors.redAccent.withOpacity(.8));
   }
 
   static info({required String msg}) {
-    Get.snackbar('Info', msg, colorText: Colors.white);
+    Get.snackbar('Info', msg,
+        colorText: Colors.white, backgroundColor: Colors.blue.shade400);
   }
 
   static showProgress() {

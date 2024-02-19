@@ -59,7 +59,7 @@ class LocationScreen extends StatelessWidget {
         //refresh button
 
         body: _controller.isLoading.value
-            ? _loadingWidget()
+            ? _loadingWidget(context)
             : _controller.vpnList.isEmpty
                 ? _noVPNFound()
                 : _vpnData(),
@@ -77,7 +77,7 @@ class LocationScreen extends StatelessWidget {
           right: mq.width * .04),
       itemBuilder: (ctx, i) => VpnCard(vpn: _controller.vpnList[i]));
 
-  _loadingWidget() => SizedBox(
+  _loadingWidget(BuildContext context) => SizedBox(
         width: double.infinity,
         height: double.infinity,
         child: Column(
@@ -96,7 +96,7 @@ class LocationScreen extends StatelessWidget {
               'Loading VPNs...',
               style: TextStyle(
                   fontSize: 16,
-                  color: Colors.black54,
+                  color: Theme.of(context).lightText,
                   fontWeight: FontWeight.bold),
             )
           ],

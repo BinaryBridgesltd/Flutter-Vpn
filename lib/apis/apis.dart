@@ -3,6 +3,7 @@ import 'dart:developer';
 
 import 'package:csv/csv.dart';
 import 'package:get/get.dart';
+import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
 
 import '../helpers/my_dialogs.dart';
@@ -11,11 +12,12 @@ import '../models/ip_details.dart';
 import '../models/vpn.dart';
 
 class APIs {
-  static Future<List<Vpn>> getVPNServers() async {
-    final List<Vpn> vpnList = [];
+  static Future<List<Vpn>> getVPNServers({int count = 10}) async {
+    final Map<String, Vpn> countryToHighestSpeedVpn = {};
 
     try {
-      final res = await get(Uri.parse('http://www.vpngate.net/api/iphone/'));
+      final res =
+          await http.get(Uri.parse('http://www.vpngate.net/api/iphone/'));
       final csvString = res.body.split("#")[1].replaceAll('*', '');
 
       List<List<dynamic>> list = const CsvToListConverter().convert(csvString);
@@ -28,42 +30,35 @@ class APIs {
         for (int j = 0; j < header.length; ++j) {
           tempJson.addAll({header[j].toString(): list[i][j]});
         }
-        vpnList.add(Vpn.fromJson(tempJson));
-      }
 
-      // Sort VPN list based on speed
-      vpnList.sort((a, b) => b.speed.compareTo(a
-          .speed)); // Assuming 'speed' is a field in your Vpn class representing the speed.
+        final vpn = Vpn.fromJson(tempJson);
+
+        // Group VPNs by country and select the one with the highest speed
+        if (!countryToHighestSpeedVpn.containsKey(vpn.countryLong)) {
+          countryToHighestSpeedVpn[vpn.countryLong] = vpn;
+        } else {
+          if (vpn.speed > countryToHighestSpeedVpn[vpn.countryLong]!.speed) {
+            countryToHighestSpeedVpn[vpn.countryLong] = vpn;
+          }
+        }
+      }
     } catch (e) {
       MyDialogs.error(msg: e.toString());
       log('\ngetVPNServersE: $e');
     }
 
-    // Get top servers with highest speed
-    final List<Vpn> topServers = [];
+    // Convert the map of country to highest speed VPN into a list
+    final selectedVPNs = countryToHighestSpeedVpn.values.toList();
 
-    final Map<String, int> countriesCount =
-        {}; // Map to keep track of selected countries
+    // Sort selected VPNs by speed
+    selectedVPNs.sort((a, b) => b.speed.compareTo(a.speed));
 
-    for (final vpn in vpnList) {
-      if (topServers.length >= 14)
-        break; // Break if we've already selected 14 servers
+    // Take only the required number of VPNs with highest speed
+    final topVPNs = selectedVPNs.take(count).toList();
 
-      // Check if we already have a server from this country, if not, add it to topServers
-      if (countriesCount.containsKey(vpn.countryLong) &&
-          countriesCount[vpn.countryLong]! >= 2) {
-        continue; // Skip if we have already selected 2 servers from this country
-      } else {
-        topServers.add(vpn);
-        countriesCount.update(vpn.countryLong, (value) => value + 1,
-            ifAbsent: () =>
-                1); // Increment the count of servers from this country
-      }
-    }
+    if (topVPNs.isNotEmpty) Pref.vpnList = topVPNs;
 
-    if (topServers.isNotEmpty) Pref.vpnList = topServers;
-
-    return topServers;
+    return topVPNs;
   }
 
   static Future<void> getIPDetails({required Rx<IPDetails> ipData}) async {

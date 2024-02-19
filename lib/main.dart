@@ -54,7 +54,7 @@ class MyApp extends StatelessWidget {
         },
       ),
       getPages: [
-        GetPage(name: '/splash', page: () => StartupScreen()),
+        GetPage(name: '/startup', page: () => StartupScreen()),
         GetPage(name: '/home', page: () => HomeScreen()),
       ],
 

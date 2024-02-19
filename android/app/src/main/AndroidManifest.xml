@@ -15,7 +15,7 @@
         android:label="Binary Bridges VPN"
         android:icon="@mipmap/launcher_icon"
         tools:ignore="AllowBackup"
-        android:extractNativeLibs="true"    
+        android:extractNativeLibs="true"
     >
 
 
