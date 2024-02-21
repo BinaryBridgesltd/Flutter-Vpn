@@ -3,7 +3,6 @@ import 'dart:developer';
 
 import 'package:csv/csv.dart';
 import 'package:get/get.dart';
-import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
 
 import '../helpers/my_dialogs.dart';
@@ -12,12 +11,11 @@ import '../models/ip_details.dart';
 import '../models/vpn.dart';
 
 class APIs {
-  static Future<List<Vpn>> getVPNServers({int count = 10}) async {
-    final Map<String, Vpn> countryToHighestSpeedVpn = {};
+  static Future<List<Vpn>> getVPNServers() async {
+    final Map<String, Vpn> vpnMapByCountry = {};
 
     try {
-      final res =
-          await http.get(Uri.parse('http://www.vpngate.net/api/iphone/'));
+      final res = await get(Uri.parse('http://www.vpngate.net/api/iphone/'));
       final csvString = res.body.split("#")[1].replaceAll('*', '');
 
       List<List<dynamic>> list = const CsvToListConverter().convert(csvString);
@@ -33,14 +31,15 @@ class APIs {
 
         final vpn = Vpn.fromJson(tempJson);
 
-        // Additional checks for active and stable connection
-        if (vpn.speed > 0 && double.parse(vpn.ping) <= 500) {
-          // Group VPNs by country and select the one with the highest speed
-          if (!countryToHighestSpeedVpn.containsKey(vpn.countryLong)) {
-            countryToHighestSpeedVpn[vpn.countryLong] = vpn;
+        // Check if VPN connection is secure and stable
+        if (vpn.speed > 0 && vpn.openVPNConfigDataBase64.isNotEmpty) {
+          // Check if VPN from this country already exists
+          if (!vpnMapByCountry.containsKey(vpn.countryShort)) {
+            vpnMapByCountry[vpn.countryShort] = vpn;
           } else {
-            if (vpn.speed > countryToHighestSpeedVpn[vpn.countryLong]!.speed) {
-              countryToHighestSpeedVpn[vpn.countryLong] = vpn;
+            // If VPN from this country already exists, replace it only if current VPN is faster
+            if (vpn.speed > vpnMapByCountry[vpn.countryShort]!.speed) {
+              vpnMapByCountry[vpn.countryShort] = vpn;
             }
           }
         }
@@ -50,18 +49,12 @@ class APIs {
       log('\ngetVPNServersE: $e');
     }
 
-    // Convert the map of country to highest speed VPN into a list
-    final selectedVPNs = countryToHighestSpeedVpn.values.toList();
+    // Convert the map values to a list
+    final List<Vpn> vpnList = vpnMapByCountry.values.toList();
 
-    // Sort selected VPNs by speed
-    selectedVPNs.sort((a, b) => b.speed.compareTo(a.speed));
+    if (vpnList.isNotEmpty) Pref.vpnList = vpnList;
 
-    // Take only the required number of VPNs with highest speed
-    final topVPNs = selectedVPNs.take(count).toList();
-
-    if (topVPNs.isNotEmpty) Pref.vpnList = topVPNs;
-
-    return topVPNs;
+    return vpnList;
   }
 
   static Future<void> getIPDetails({required Rx<IPDetails> ipData}) async {

@@ -104,7 +104,9 @@ class LocationScreen extends StatelessWidget {
               'Loading VPNs...',
               style: TextStyle(
                   fontSize: 16,
-                  color: Theme.of(context).lightText,
+                  color: Theme.of(context).brightness == Brightness.dark
+                  ? Colors.blue.shade400
+                  : Colors.black,
                   fontWeight: FontWeight.bold),
             )
           ],

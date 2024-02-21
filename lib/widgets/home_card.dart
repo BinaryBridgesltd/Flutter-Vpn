@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../helpers/pref.dart';
 import '../main.dart';
 
 //card to represent status in home screen
@@ -31,7 +30,9 @@ class HomeCard extends StatelessWidget {
                   Text(
                     title,
                     style: TextStyle(
-                        color: Theme.of(context).lightText,
+                        color: Theme.of(context).brightness == Brightness.dark
+                            ? Colors.blue.shade400
+                            : Colors.black,
                         fontWeight: FontWeight.w600,
                         fontSize: 14),
                   ),
@@ -40,7 +41,7 @@ class HomeCard extends StatelessWidget {
                     width: 28.0,
                     height: 28.0,
                     decoration: BoxDecoration(
-                        color: Pref.isDarkMode
+                        color: Theme.of(context).brightness == Brightness.dark
                             ? Colors.white12
                             : Color(0xFFFEF1EB),
                         borderRadius: BorderRadius.circular(4.0)),
@@ -53,15 +54,15 @@ class HomeCard extends StatelessWidget {
                 ],
               ),
             ),
-            SizedBox(height: 2.0),
+            SizedBox(height: 4.0),
             Text(subtitle,
                 style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.w500,
-                    color: Pref.isDarkMode
+                    fontSize: 20,
+                    fontWeight: FontWeight.w600,
+                    color: Theme.of(context).brightness == Brightness.dark
                         ? Colors.amber.shade400
                         : Colors.black)),
-            SizedBox(height: 2.0),
+            SizedBox(height: 4.0),
           ],
         ));
   }

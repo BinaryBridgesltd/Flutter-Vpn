@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/route_manager.dart';
+import 'package:vpn_basic_project/screens/main_screen.dart';
 
 import '../helpers/ad_helper.dart';
 import '../main.dart';
-import 'home_screen.dart';
 
 class StartupScreen extends StatefulWidget {
   const StartupScreen({super.key});
@@ -17,7 +17,7 @@ class _StartupScreenState extends State<StartupScreen> {
   @override
   void initState() {
     super.initState();
-    Future.delayed(Duration(milliseconds: 1500), () {
+    Future.delayed(Duration(milliseconds: 2500), () {
       //exit full-screen
       SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
 
@@ -25,9 +25,7 @@ class _StartupScreenState extends State<StartupScreen> {
       AdHelper.precacheNativeAd();
 
       //navigate to home
-      Get.off(() => HomeScreen());
-      // Navigator.pushReplacement(
-      //     context, MaterialPageRoute(builder: (_) => HomeScreen()));
+      Get.off(() => MainScreen());
     });
   }
 
@@ -41,21 +39,49 @@ class _StartupScreenState extends State<StartupScreen> {
         children: [
           //app logo
           Positioned(
-              left: mq.width * .3,
-              top: mq.height * .2,
-              width: mq.width * .4,
-              child: Image.asset('assets/icons/app_icon.png')),
+              top: mq.height * 0.20,
+              width: mq.width,
+              child: Column(
+                children: [
+                  Image.asset('assets/icons/app_icon.png'),
+                  SizedBox(
+                    height: 28.0,
+                  ),
+                  Text(
+                    'Binary Bridges VPN',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                        color: Theme.of(context).brightness == Brightness.dark
+                            ? Colors.blue.shade400
+                            : Colors.black,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 24.0,
+                        letterSpacing: 1),
+                  )
+                ],
+              )),
 
           //label
           Positioned(
-              bottom: mq.height * .15,
+              bottom: mq.height * 0.3,
               width: mq.width,
               child: Text(
                 'Best VPN Provides Best Protection',
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                    color: Theme.of(context).lightText, letterSpacing: 1),
-              ))
+                    color: Theme.of(context).brightness == Brightness.dark
+                        ? Colors.blue.shade400
+                        : Colors.black,
+                    letterSpacing: 1),
+              )),
+
+          Positioned(
+              bottom: mq.height * 0.15,
+              width: mq.width,
+              child: Center(
+                  child: CircularProgressIndicator(
+                strokeWidth: 8.0,
+              ))),
         ],
       ),
     );

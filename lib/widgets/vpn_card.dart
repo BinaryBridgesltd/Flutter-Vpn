@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -22,7 +20,9 @@ class VpnCard extends StatelessWidget {
     return Card(
         color: controller.vpn.value.hostname == vpn.hostname
             ? Color(0xFFF06A30)
-            : Theme.of(context).containerColor,
+            : Theme.of(context).brightness == Brightness.dark
+                ? Colors.white12
+                : Colors.white,
         margin: EdgeInsets.symmetric(vertical: mq.height * .008),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         child: InkWell(
@@ -71,7 +71,9 @@ class VpnCard extends StatelessWidget {
               style: TextStyle(
                   color: controller.vpn.value.hostname == vpn.hostname
                       ? Colors.white
-                      : Theme.of(context).lightText,
+                      : Theme.of(context).brightness == Brightness.dark
+                          ? Colors.blue.shade400
+                          : Colors.black,
                   fontSize: 16.0,
                   fontWeight: FontWeight.w600),
             ),
@@ -87,7 +89,9 @@ class VpnCard extends StatelessWidget {
                             ? Icons.signal_cellular_alt_1_bar_rounded
                             : Icons.signal_cellular_alt_2_bar_rounded,
                     color: controller.vpn.value.hostname != vpn.hostname
-                        ? Theme.of(context).lightText
+                        ? Theme.of(context).brightness == Brightness.dark
+                            ? Colors.blue.shade400
+                            : Colors.black
                         : Colors.white,
                     size: 24),
                 VerticalDivider(
@@ -99,7 +103,9 @@ class VpnCard extends StatelessWidget {
                 ),
                 Icon(CupertinoIcons.forward,
                     color: controller.vpn.value.hostname != vpn.hostname
-                        ? Theme.of(context).lightText
+                        ? Theme.of(context).brightness == Brightness.dark
+                            ? Colors.blue.shade400
+                            : Colors.black
                         : Colors.white),
               ],
             ),

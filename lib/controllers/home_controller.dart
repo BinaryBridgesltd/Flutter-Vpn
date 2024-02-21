@@ -44,10 +44,11 @@ class HomeController extends GetxController {
     }
   }
 
-  Color get getButtonColor {
+  Color getButtonColor( BuildContext  context) {
     switch (vpnState.value) {
       case VpnEngine.vpnDisconnected:
-        return Pref.isDarkMode ? Colors.white24 : Colors.white;
+        return Theme.of(context).brightness == Brightness.dark
+                             ? Colors.white24 : Colors.white;
       case VpnEngine.vpnConnected:
         return const Color(0xFFFF06A30);
       default:
@@ -55,10 +56,11 @@ class HomeController extends GetxController {
     }
   }
 
-  Color get getButtonTextIconColor {
+  Color getButtonTextIconColor(BuildContext context) {
     switch (vpnState.value) {
       case VpnEngine.vpnDisconnected:
-        return Pref.isDarkMode ? Colors.white : const Color(0xFFFF06A30);
+        return Theme.of(context).brightness == Brightness.dark
+                             ? Colors.white : const Color(0xFFFF06A30);
       case VpnEngine.vpnConnected:
         return Colors.white;
       default:

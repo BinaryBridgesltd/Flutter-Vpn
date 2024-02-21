@@ -2,11 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:vpn_basic_project/screens/home_screen.dart';
+import 'package:vpn_basic_project/screens/location_screen.dart';
+import 'package:vpn_basic_project/screens/network_location_screen.dart';
 
 import 'helpers/ad_helper.dart';
 import 'helpers/config.dart';
 import 'helpers/pref.dart';
 import 'screens/startup_screen.dart';
+import 'services/vpn_engine.dart';
 
 //global object for accessing device screen size
 late Size mq;
@@ -36,59 +40,60 @@ Future<void> main() async {
   });
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   MyApp({super.key});
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    // Check if the app is moved to the background or terminated
+    if (state == AppLifecycleState.detached) {
+      // Stop the VPN when the app is moved to the background or terminated
+      VpnEngine.stopVpn();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return GetMaterialApp(
       title: 'Binary Bridges VPN',
       home: StartupScreen(),
+      initialRoute: '/',
+      getPages: [
+        GetPage(name: '/home', page: () => HomeScreen()),
+        GetPage(name: '/locationScreen', page: () => LocationScreen()),
+        GetPage(
+            name: '/networklocationScreen',
+            page: () => NetworkLocationScreen()),
+      ],
 
-      //theme
-      theme: ThemeData(
-        appBarTheme: AppBarTheme(
-            centerTitle: true,
-            elevation: 0,
-            backgroundColor: Colors.grey.shade100),
-        scaffoldBackgroundColor: Colors.grey.shade100,
-        textTheme: Theme.of(context)
-            .textTheme
-            .apply(fontFamily: 'Sora', fontSizeFactor: 0.9),
-      ),
-
-      themeMode: Pref.isDarkMode ? ThemeMode.dark : ThemeMode.light,
-
-      //dark theme
-      darkTheme: ThemeData(
-        brightness: Brightness.dark,
-        textTheme: Theme.of(context)
-            .textTheme
-            .apply(fontFamily: 'Sora', fontSizeFactor: 0.9),
-        appBarTheme: AppBarTheme(
-          centerTitle: true,
-          elevation: 2.0,
-        ),
-      ),
+      themeMode: ThemeMode.system,
+      darkTheme: ThemeData.dark().copyWith(
+          appBarTheme: AppBarTheme(centerTitle: true),
+          textTheme: Theme.of(context).textTheme.apply(fontFamily: 'Sora')),
+      theme: ThemeData.light().copyWith(
+          appBarTheme: AppBarTheme(centerTitle: true),
+          textTheme:
+              Theme.of(context).textTheme.apply(fontFamily: 'Sora')), //theme
 
       debugShowCheckedModeBanner: false,
     );
   }
-}
-
-extension AppTheme on ThemeData {
-  Color get lightText =>
-      Pref.isDarkMode ? Colors.blue.shade400 : Colors.black87;
-  Color get bottomNav => Pref.isDarkMode ? Colors.white12 : Colors.white;
-  Color get containerColor => Pref.isDarkMode ? Colors.white12 : Colors.white;
-
-  get containerShadow => Pref.isDarkMode
-      ? null
-      : [
-          BoxShadow(
-              spreadRadius: 0.5,
-              offset: Offset(1, 1),
-              blurRadius: 4,
-              color: Colors.grey.shade300)
-        ];
 }

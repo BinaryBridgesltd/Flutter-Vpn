@@ -1,26 +1,21 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-
 import 'package:get/get.dart';
-
+import 'package:vpn_basic_project/controllers/drawer_controller.dart';
 import '../controllers/home_controller.dart';
-import '../helpers/ad_helper.dart';
-import '../helpers/config.dart';
-import '../helpers/pref.dart';
 import '../main.dart';
-
 import '../models/vpn_status.dart';
 import '../services/vpn_engine.dart';
 import '../widgets/count_down_timer.dart';
 import '../widgets/home_card.dart';
-import '../widgets/watch_ad_dialog.dart';
 import 'location_screen.dart';
-import 'network_test_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   HomeScreen({super.key});
 
   final HomeController _controller = Get.put(HomeController());
+  final LeftDrawerController drawerController = Get.put(LeftDrawerController());
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +25,7 @@ class HomeScreen extends StatelessWidget {
     });
 
     return Scaffold(
-      appBar: _buildAppBar(context),
+      key: _scaffoldKey,
       bottomNavigationBar: Obx(() => _changeLocation(context)),
       body: SingleChildScrollView(
         child: Column(
@@ -51,86 +46,23 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  PreferredSize _buildAppBar(BuildContext context) {
-    return PreferredSize(
-      preferredSize: Size.fromHeight(64),
-      child: AppBar(
-        toolbarHeight: 60,
-        leadingWidth: 80,
-        leading: _buildLeadingIcon(context),
-        title: Text(
-          'Binary Bridges VPN',
-          style: Theme.of(context).textTheme.titleMedium!.copyWith(
-              color: Theme.of(context).lightText, fontWeight: FontWeight.w600),
-        ),
-        actions: [
-          _buildBrightnessIconButton(context),
-          _buildInfoIconButton(),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildLeadingIcon(BuildContext context) {
-    return Container(
-      margin: EdgeInsets.symmetric(horizontal: 12.0, vertical: 4.0),
-      decoration: BoxDecoration(
-        color: Theme.of(context).containerColor,
-        borderRadius: BorderRadius.circular(16.0),
-        boxShadow: Theme.of(context).containerShadow,
-      ),
-      child: IconButton(
-        onPressed: () => {},
-        icon: Icon(CupertinoIcons.square_grid_2x2),
-      ),
-    );
-  }
-
-  Widget _buildBrightnessIconButton(BuildContext context) {
-    return IconButton(
-      onPressed: () {
-        if (Config.hideAds) {
-          Get.changeThemeMode(
-              Pref.isDarkMode ? ThemeMode.light : ThemeMode.dark);
-          Pref.isDarkMode = !Pref.isDarkMode;
-          return;
-        }
-        Get.dialog(WatchAdDialog(
-          onComplete: () {
-            AdHelper.showRewardedAd(onComplete: () {
-              Get.changeThemeMode(
-                  Pref.isDarkMode ? ThemeMode.light : ThemeMode.dark);
-              Pref.isDarkMode = !Pref.isDarkMode;
-            });
-          },
-        ));
-      },
-      icon: Icon(
-        Icons.brightness_medium,
-        size: 24,
-      ),
-    );
-  }
-
-  Widget _buildInfoIconButton() {
-    return IconButton(
-      padding: EdgeInsets.only(right: 8),
-      onPressed: () => Get.to(() => NetworkTestScreen()),
-      icon: Icon(
-        CupertinoIcons.info,
-        size: 24,
-      ),
-    );
-  }
-
   Widget _buildStatusContainer(BuildContext context, VpnStatus? data) {
     return Container(
       alignment: Alignment.topCenter,
       margin: EdgeInsets.all(12.0),
       decoration: BoxDecoration(
-        color: Theme.of(context).containerColor,
+        color: Theme.of(context).brightness == Brightness.dark
+            ? Colors.white12
+            : Colors.white,
         borderRadius: BorderRadius.circular(16.0),
-        boxShadow: Theme.of(context).containerShadow,
+        boxShadow: Theme.of(context).brightness == Brightness.dark
+            ? null
+            : [
+                BoxShadow(
+                    color: Colors.grey.shade300,
+                    offset: Offset(2, 2),
+                    blurRadius: 4)
+              ],
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -171,10 +103,16 @@ class HomeScreen extends StatelessWidget {
             child: Container(
               padding: EdgeInsets.all(16),
               decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: _controller.getButtonColor,
-                boxShadow: Theme.of(context).containerShadow,
-              ),
+                  shape: BoxShape.circle,
+                  color: _controller.getButtonColor(context),
+                  boxShadow: Theme.of(context).brightness == Brightness.dark
+                      ? null
+                      : [
+                          BoxShadow(
+                              color: Colors.grey.shade300,
+                              offset: Offset(2, 2),
+                              blurRadius: 4)
+                        ]),
               child: Container(
                 width: mq.height * .14,
                 height: mq.height * .14,
@@ -183,7 +121,7 @@ class HomeScreen extends StatelessWidget {
                     color: _controller.getBorderColor,
                   ),
                   shape: BoxShape.circle,
-                  color: _controller.getButtonColor,
+                  color: _controller.getButtonColor(context),
                 ),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -191,14 +129,14 @@ class HomeScreen extends StatelessWidget {
                     Icon(
                       _controller.getIcon,
                       size: 28,
-                      color: _controller.getButtonTextIconColor,
+                      color: _controller.getButtonTextIconColor(context),
                     ),
                     SizedBox(height: 4),
                     Text(
                       _controller.getButtonText,
                       style: TextStyle(
                         fontSize: 14.0,
-                        color: _controller.getButtonTextIconColor,
+                        color: _controller.getButtonTextIconColor(context),
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -218,13 +156,18 @@ class HomeScreen extends StatelessWidget {
                 : _controller.vpnState.replaceAll('_', ' ').toUpperCase(),
             style: TextStyle(
               fontSize: 16,
-              color: Theme.of(context).lightText,
+              color: Theme.of(context).brightness == Brightness.dark
+                  ? Colors.blue.shade400
+                  : Colors.black,
               fontWeight: FontWeight.w600,
             ),
           ),
         ),
-        Obx(() => CountDownTimer(
-            startTimer: _controller.vpnState.value == VpnEngine.vpnConnected)),
+        GetBuilder<HomeController>(
+            builder: (_) => CountDownTimer(
+                  startTimer:
+                      _controller.vpnState.value == VpnEngine.vpnConnected,
+                )),
       ],
     );
   }
@@ -246,10 +189,18 @@ class HomeScreen extends StatelessWidget {
           },
           child: Container(
             decoration: BoxDecoration(
-              boxShadow: Theme.of(context).containerShadow,
-              borderRadius: BorderRadius.circular(16.0),
-              color: Theme.of(context).containerColor,
-            ),
+                borderRadius: BorderRadius.circular(16.0),
+                color: Theme.of(context).brightness == Brightness.dark
+                    ? Colors.white12
+                    : Colors.white,
+                boxShadow: Theme.of(context).brightness == Brightness.dark
+                    ? null
+                    : [
+                        BoxShadow(
+                            color: Colors.grey.shade300,
+                            offset: Offset(2, 2),
+                            blurRadius: 4)
+                      ]),
             margin: EdgeInsets.symmetric(vertical: 16.0, horizontal: 12.0),
             padding: EdgeInsets.symmetric(horizontal: mq.width * .04),
             height: 56,
@@ -257,7 +208,10 @@ class HomeScreen extends StatelessWidget {
               children: [
                 _controller.vpn.value.countryLong.isEmpty
                     ? Icon(CupertinoIcons.globe,
-                        color: Theme.of(context).lightText, size: 28)
+                        color: Theme.of(context).brightness == Brightness.dark
+                            ? Colors.blue.shade400
+                            : Colors.black,
+                        size: 28)
                     : Image.asset(
                         'assets/flags/${_controller.vpn.value.countryShort.toLowerCase()}.png',
                         height: 28,
@@ -269,14 +223,19 @@ class HomeScreen extends StatelessWidget {
                       ? 'Select Location'
                       : _controller.vpn.value.countryLong,
                   style: TextStyle(
-                    color: Theme.of(context).lightText,
+                    color: Theme.of(context).brightness == Brightness.dark
+                        ? Colors.blue.shade400
+                        : Colors.black,
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
                 Spacer(),
                 Icon(Icons.keyboard_arrow_up_rounded,
-                    color: Theme.of(context).lightText, size: 26),
+                    color: Theme.of(context).brightness == Brightness.dark
+                        ? Colors.blue.shade400
+                        : Colors.black,
+                    size: 26),
               ],
             ),
           ),

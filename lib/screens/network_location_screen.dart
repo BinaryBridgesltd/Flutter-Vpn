@@ -8,8 +8,8 @@ import '../models/ip_details.dart';
 import '../models/network_data.dart';
 import '../widgets/network_card.dart';
 
-class NetworkTestScreen extends StatelessWidget {
-  const NetworkTestScreen({super.key});
+class NetworkLocationScreen extends StatelessWidget {
+  const NetworkLocationScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -17,12 +17,19 @@ class NetworkTestScreen extends StatelessWidget {
     APIs.getIPDetails(ipData: ipData);
 
     return Scaffold(
-      appBar: AppBar(title: Text('Network Test Screen')),
+      appBar: AppBar(
+        centerTitle: false,
+        title: Text('Network Location'),
+        automaticallyImplyLeading: false,
+      ),
 
       //refresh button
       floatingActionButton: Padding(
-        padding: const EdgeInsets.only(bottom: 10, right: 10),
+        padding: const EdgeInsets.only(bottom: 12, right: 12),
         child: FloatingActionButton(
+            backgroundColor: Theme.of(context).brightness == Brightness.dark
+                ? Colors.white12
+                : Colors.white,
             onPressed: () {
               ipData.value = IPDetails.fromJson({});
               APIs.getIPDetails(ipData: ipData);
@@ -44,9 +51,7 @@ class NetworkTestScreen extends StatelessWidget {
                   data: NetworkData(
                       title: 'IP Address',
                       subtitle: ipData.value.query,
-                      
-                      icon: Icon(CupertinoIcons.location_solid,
-                          color: Colors.blue))),
+                      icon: Icon(CupertinoIcons.globe, color: Colors.blue))),
 
               //isp
               NetworkCard(
@@ -71,7 +76,6 @@ class NetworkTestScreen extends StatelessWidget {
                       subtitle: ipData.value.zip,
                       icon: Icon(CupertinoIcons.location_solid,
                           color: Colors.cyan))),
-
               //timezone
               NetworkCard(
                   data: NetworkData(
