@@ -46,6 +46,12 @@ android {
         release {
             signingConfig signingConfigs.debug
         }
+        debug {
+            // Configure Java compilation options
+            tasks.withType(JavaCompile) {
+                options.compilerArgs << '-Xlint'
+            }
+        }
     }
 }
 
