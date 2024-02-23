@@ -22,16 +22,16 @@ class MainScreen extends StatelessWidget {
       appBar: _buildAppBar(context),
       drawer: _buildDrawer(context),
       body: GetBuilder<LeftDrawerController>(builder: (controller) {
-        return controller.currentScreen;
+        return SafeArea(child: controller.currentScreen);
       }),
     );
   }
 
   PreferredSize _buildAppBar(BuildContext context) {
     return PreferredSize(
-      preferredSize: Size(mq.width * 0.8, 64.0),
+      preferredSize: Size(mq.width, mq.height * 0.1),
       child: AppBar(
-        toolbarHeight: 60,
+        toolbarHeight: mq.height * 0.1,
         leadingWidth: 80,
         automaticallyImplyLeading: false,
         leading: _buildLeadingIcon(context),
@@ -53,7 +53,7 @@ class MainScreen extends StatelessWidget {
 
   Widget _buildLeadingIcon(BuildContext context) {
     return Container(
-      margin: EdgeInsets.symmetric(horizontal: 12.0, vertical: 4.0),
+      margin: EdgeInsets.symmetric(horizontal: 12.0, vertical: 16.0),
       decoration: BoxDecoration(
         color: Theme.of(context).brightness == Brightness.dark
             ? Colors.white12
@@ -106,8 +106,10 @@ class MainScreen extends StatelessWidget {
   Widget _buildDrawer(BuildContext context) {
     final mq = MediaQuery.of(context).size;
     return Material(
+      clipBehavior: Clip.antiAliasWithSaveLayer,
       child: Drawer(
-        clipBehavior: Clip.antiAlias,
+        shape: RoundedRectangleBorder(),
+        clipBehavior: Clip.antiAliasWithSaveLayer,
         width: mq.width * 0.7,
         elevation: 0,
         backgroundColor: Theme.of(context).brightness == Brightness.dark
@@ -160,6 +162,7 @@ class MainScreen extends StatelessWidget {
         title: Text(
           _drawerController.drawerItems[index].title,
           style: TextStyle(
+            fontWeight: FontWeight.w600,
             color: Theme.of(context).brightness == Brightness.dark
                 ? _drawerController.selectedDrawerIndex.value == index
                     ? Colors.amber

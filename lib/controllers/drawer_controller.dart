@@ -6,7 +6,7 @@ import 'package:vpn_basic_project/screens/privacy_policy_screen.dart';
 
 import '../models/drawer_item.dart';
 import '../screens/home_screen.dart';
-import '../screens/version_info.dart';
+import '../screens/app_info.dart';
 
 class LeftDrawerController extends GetxController {
   late Widget currentScreen = HomeScreen();
@@ -49,7 +49,7 @@ class LeftDrawerController extends GetxController {
 
       case 3:
         {
-          currentScreen = VersionInfoScreen(
+          currentScreen = AppInfoScreen(
             appName: 'Your VPN App',
             version: '1.0.0',
             buildNumber: '1000',

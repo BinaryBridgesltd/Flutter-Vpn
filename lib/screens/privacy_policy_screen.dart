@@ -15,10 +15,18 @@ class PrivacyPolicyScreen extends StatelessWidget {
       ),
       body: SingleChildScrollView(
         padding: EdgeInsets.all(16.0),
-        child: Obx(() => Text.rich(TextSpan(
-              text: controller.policyText.value,
-              style: TextStyle(color: Colors.white),
-            ))),
+        child: Obx(() => Text.rich(
+              TextSpan(
+                text: controller.policyText.value,
+                style: TextStyle(
+                    color: Theme.of(context).brightness == Brightness.dark
+                        ? Colors.white60
+                        : Colors.black),
+              ),
+              softWrap: true,
+              textWidthBasis: TextWidthBasis.longestLine,
+              textAlign: TextAlign.start,
+            )),
       ),
     );
   }

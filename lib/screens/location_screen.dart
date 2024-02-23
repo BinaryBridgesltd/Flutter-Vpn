@@ -83,7 +83,7 @@ class LocationScreen extends StatelessWidget {
           bottom: mq.height * .1,
           left: mq.width * .04,
           right: mq.width * .04),
-      itemBuilder: (ctx, i) => VpnCard(vpn: _controller.vpnList[i]));
+      itemBuilder: (context, i) => VpnCard(vpn: _controller.vpnList[i]));
 
   _loadingWidget(BuildContext context) => SizedBox(
         width: double.infinity,
@@ -94,7 +94,7 @@ class LocationScreen extends StatelessWidget {
             //lottie animation
             LottieBuilder.asset(
               'assets/lottie/loading.json',
-              width: mq.width * .5,
+              width: mq.width * 0.5,
               filterQuality: FilterQuality.high,
               frameRate: FrameRate.composition,
             ),
@@ -105,8 +105,8 @@ class LocationScreen extends StatelessWidget {
               style: TextStyle(
                   fontSize: 16,
                   color: Theme.of(context).brightness == Brightness.dark
-                  ? Colors.blue.shade400
-                  : Colors.black,
+                      ? Colors.blue.shade400
+                      : Colors.black,
                   fontWeight: FontWeight.bold),
             )
           ],

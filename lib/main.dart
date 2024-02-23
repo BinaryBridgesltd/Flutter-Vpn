@@ -1,6 +1,5 @@
-import 'dart:ui';
-
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -37,12 +36,6 @@ Future<void> main() async {
   //initializing ads
   await AdHelper.initAds();
 
-  //for setting orientation to portrait only
-  SystemChrome.setPreferredOrientations(
-      [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]).then((v) {
-    runApp(MyApp());
-  });
-
   FlutterError.onError = (details) {
     FirebaseCrashlytics.instance.recordFlutterFatalError(details);
   };
@@ -53,6 +46,12 @@ Future<void> main() async {
 
     return true;
   };
+
+  //for setting orientation to portrait only
+  SystemChrome.setPreferredOrientations(
+      [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]).then((v) {
+    runApp(MyApp());
+  });
 }
 
 class MyApp extends StatefulWidget {

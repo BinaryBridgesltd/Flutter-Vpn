@@ -18,12 +18,11 @@ class Vpn {
       required this.numVpnSessions,
       required this.openVPNConfigDataBase64});
 
-  Vpn.fromJson(Map<String, dynamic> json) {
+  Vpn.fromJson(Map<dynamic, dynamic> json) {
     hostname = json['HostName'] ?? '';
     ip = json['IP'] ?? '';
-    ping = json['Ping'] is int ? json['Ping'] : int.parse(json['Ping'] ?? '0');
-    speed =
-        json['Speed'] is int ? json['Speed'] : int.parse(json['Speed'] ?? '0');
+    ping = json['Ping'] is int ? json['Ping'] : json['Ping'].toString();
+    speed = json['Speed'] is int ? json['Speed'] : json['Speed'].toString();
     countryLong = json['CountryLong'] ?? '';
     countryShort = json['CountryShort'] ?? '';
     numVpnSessions = json['NumVpnSessions'] ?? 0;

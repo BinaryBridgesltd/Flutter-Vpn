@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:get/route_manager.dart';
 import 'package:vpn_basic_project/screens/main_screen.dart';
 
@@ -18,9 +17,6 @@ class _StartupScreenState extends State<StartupScreen> {
   void initState() {
     super.initState();
     Future.delayed(Duration(milliseconds: 2500), () {
-      //exit full-screen
-      SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
-
       AdHelper.precacheInterstitialAd();
       AdHelper.precacheNativeAd();
 

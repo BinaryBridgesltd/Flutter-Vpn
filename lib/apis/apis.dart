@@ -3,7 +3,6 @@ import 'dart:developer';
 import 'package:csv/csv.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart';
-
 import '../helpers/my_dialogs.dart';
 import '../helpers/pref.dart';
 import '../models/ip_details.dart';
@@ -31,7 +30,7 @@ class APIs {
         final vpn = Vpn.fromJson(tempJson);
 
         // Check if VPN connection is secure and stable
-        if (vpn.speed >= 3e+8 && vpn.ping <= 50) {
+        if (vpn.speed >= 3e+8 && vpn.ping <= 50 && vpn.ping != '-') {
           // Check if VPN from this country already exists
           if (!vpnMapByCountry.containsKey(vpn.countryShort)) {
             vpnMapByCountry[vpn.countryShort] = vpn;

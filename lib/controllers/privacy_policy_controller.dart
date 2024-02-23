@@ -13,7 +13,7 @@ class PrivacyPolicyController extends GetxController {
 
   Future<void> _loadPolicyText() async {
     try {
-      var text = await rootBundle.loadString('assets/privacy_policy.txt');
+      var text = await rootBundle.loadString('assets/text/privacy_policy.txt');
       policyText.value = text;
     } catch (e) {
       print(e.toString());

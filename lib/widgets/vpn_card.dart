@@ -18,7 +18,7 @@ class VpnCard extends StatelessWidget {
     final controller = Get.find<HomeController>();
 
     return Card(
-        color: controller.vpn.value.hostname == vpn.hostname
+        color: controller.vpn.value.ip == vpn.ip
             ? Color(0xFFF06A30)
             : Theme.of(context).brightness == Brightness.dark
                 ? Colors.white12
@@ -33,12 +33,12 @@ class VpnCard extends StatelessWidget {
 
             // MyDialogs.success(msg: 'Connecting VPN Location...');
 
-            if (controller.vpnState.value == VpnEngine.vpnConnected) {
+            if (controller.vpnState.value != VpnEngine.vpnConnected) {
+              controller.connectToVpn();
+            } else {
               VpnEngine.stopVpn();
               Future.delayed(
-                  Duration(seconds: 2), () => controller.connectToVpn());
-            } else {
-              controller.connectToVpn();
+                  Duration(seconds: 1), () => controller.connectToVpn());
             }
           },
           borderRadius: BorderRadius.circular(15),
@@ -67,9 +67,9 @@ class VpnCard extends StatelessWidget {
 
             //title
             title: Text(
-              vpn.countryLong,
+              vpn.countryLong.toString(),
               style: TextStyle(
-                  color: controller.vpn.value.hostname == vpn.hostname
+                  color: controller.vpn.value.ip == vpn.ip
                       ? Colors.white
                       : Theme.of(context).brightness == Brightness.dark
                           ? Colors.blue.shade400
@@ -95,14 +95,14 @@ class VpnCard extends StatelessWidget {
                         : Colors.white,
                     size: 24),
                 VerticalDivider(
-                  color: controller.vpn.value.hostname != vpn.hostname
+                  color: controller.vpn.value.ip != vpn.ip
                       ? Colors.grey.shade400
                       : Color(0xFFF38859),
                   endIndent: 4,
                   indent: 4,
                 ),
                 Icon(CupertinoIcons.forward,
-                    color: controller.vpn.value.hostname != vpn.hostname
+                    color: controller.vpn.value.ip != vpn.ip
                         ? Theme.of(context).brightness == Brightness.dark
                             ? Colors.blue.shade400
                             : Colors.black
