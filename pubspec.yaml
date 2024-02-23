@@ -41,7 +41,8 @@ dependencies:
   # For Remote Config
   firebase_remote_config: ^4.2.3
 
-  #connectivity_plus: ^5.0.2
+  firebase_crashlytics: ^3.4.15
+  firebase_analytics: ^10.8.6
 
 
   flutter_launcher_icons: "^0.13.1"

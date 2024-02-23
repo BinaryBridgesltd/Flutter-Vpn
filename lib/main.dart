@@ -1,7 +1,11 @@
+import 'dart:ui';
+
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:vpn_basic_project/firebase_options.dart';
 import 'package:vpn_basic_project/screens/home_screen.dart';
 import 'package:vpn_basic_project/screens/location_screen.dart';
 import 'package:vpn_basic_project/screens/network_location_screen.dart';
@@ -19,10 +23,10 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   //enter full-screen
-  //SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
+  SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
 
   //firebase initialization
-  await Firebase.initializeApp();
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   //initializing remote config
   await Config.initConfig();
@@ -38,6 +42,17 @@ Future<void> main() async {
       [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]).then((v) {
     runApp(MyApp());
   });
+
+  FlutterError.onError = (details) {
+    FirebaseCrashlytics.instance.recordFlutterFatalError(details);
+  };
+
+  PlatformDispatcher.instance.onError = (exception, stackTrace) {
+    FirebaseCrashlytics.instance
+        .recordError(exception, stackTrace, fatal: true);
+
+    return true;
+  };
 }
 
 class MyApp extends StatefulWidget {

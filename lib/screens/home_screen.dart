@@ -219,7 +219,7 @@ class HomeScreen extends StatelessWidget {
                       ),
                 SizedBox(width: 10),
                 Text(
-                  _controller.vpn.value.countryLong.isEmpty
+                  _controller.vpn.value.openVPNConfigDataBase64.isEmpty
                       ? 'Select Location'
                       : _controller.vpn.value.countryLong,
                   style: TextStyle(
