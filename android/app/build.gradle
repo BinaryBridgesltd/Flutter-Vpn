@@ -37,10 +37,11 @@ android {
 
     defaultConfig {
         applicationId "com.binarybridges.vpn"
-        minSdkVersion 21
+        minSdkVersion 19
         targetSdkVersion 33
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
+        multiDexEnabled true
     }
 
     buildTypes {
