@@ -9,6 +9,7 @@ import 'package:vpn_basic_project/screens/home_screen.dart';
 import 'package:vpn_basic_project/screens/location_screen.dart';
 import 'package:vpn_basic_project/screens/network_location_screen.dart';
 
+import 'controllers/home_controller.dart';
 import 'helpers/ad_helper.dart';
 import 'helpers/config.dart';
 import 'helpers/pref.dart';
@@ -21,9 +22,6 @@ late Size mq;
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  //enter full-screen
-  SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
-
   //firebase initialization
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
@@ -35,6 +33,9 @@ Future<void> main() async {
 
   //initializing ads
   await AdHelper.initAds();
+
+//enter full-screen
+  SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
 
   FlutterError.onError = (details) {
     FirebaseCrashlytics.instance.recordFlutterFatalError(details);
@@ -74,13 +75,17 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     super.dispose();
   }
 
+  final HomeController _homeController = Get.put(HomeController());
+
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     super.didChangeAppLifecycleState(state);
     // Check if the app is moved to the background or terminated
-    if (state == AppLifecycleState.detached) {
-      // Stop the VPN when the app is moved to the background or terminated
-      VpnEngine.stopVpn();
+    if (state == AppLifecycleState.detached ||
+        state == AppLifecycleState.resumed) {
+      VpnEngine.vpnStageSnapshot().listen((event) {
+        _homeController.vpnState.value = event;
+      });
     }
   }
 

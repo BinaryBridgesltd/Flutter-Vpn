@@ -6,30 +6,33 @@ class Vpn {
   late final String countryLong;
   late final String countryShort;
   late final int numVpnSessions;
+  late final int totalUsers;
+  late final int totalTraffic;
   late final String openVPNConfigDataBase64;
-
-  Vpn(
-      {required this.hostname,
-      required this.ip,
-      required this.ping,
-      required this.speed,
-      required this.countryLong,
-      required this.countryShort,
-      required this.numVpnSessions,
-      required this.openVPNConfigDataBase64});
-
+  Vpn({
+    required this.hostname,
+    required this.ip,
+    required this.ping,
+    required this.speed,
+    required this.countryLong,
+    required this.countryShort,
+    required this.numVpnSessions,
+    required this.totalUsers,
+    required this.totalTraffic,
+    required this.openVPNConfigDataBase64,
+  });
   Vpn.fromJson(Map<dynamic, dynamic> json) {
     hostname = json['HostName'] ?? '';
     ip = json['IP'] ?? '';
-    ping = json['Ping'] is int ? json['Ping'] : json['Ping'].toString();
-    speed = json['Speed'] is int ? json['Speed'] : json['Speed'].toString();
+    ping = json['Ping'] is int ? json['Ping'] : 0;
+    speed = json['Speed'] is int ? json['Speed'] : 0;
     countryLong = json['CountryLong'] ?? '';
     countryShort = json['CountryShort'] ?? '';
     numVpnSessions = json['NumVpnSessions'] ?? 0;
-
+    totalUsers = json['TotalUsers'] ?? 0;
+    totalTraffic = json['TotalTraffic'] ?? 0;
     openVPNConfigDataBase64 = json['OpenVPN_ConfigData_Base64'] ?? '';
   }
-
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['HostName'] = hostname;
@@ -39,6 +42,8 @@ class Vpn {
     data['CountryLong'] = countryLong;
     data['CountryShort'] = countryShort;
     data['NumVpnSessions'] = numVpnSessions;
+    data['TotalUsers'] = totalUsers;
+    data['TotalTraffic'] = totalTraffic;
     data['OpenVPN_ConfigData_Base64'] = openVPNConfigDataBase64;
     return data;
   }

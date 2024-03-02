@@ -163,11 +163,9 @@ class HomeScreen extends StatelessWidget {
             ),
           ),
         ),
-        GetBuilder<HomeController>(
-            builder: (_) => CountDownTimer(
-                  startTimer:
-                      _controller.vpnState.value == VpnEngine.vpnConnected,
-                )),
+        CountDownTimer(
+          vpnState: _controller.vpnState,
+        ),
       ],
     );
   }

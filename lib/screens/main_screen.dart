@@ -99,8 +99,8 @@ class MainScreen extends StatelessWidget {
   }
 
   void _toggleTheme() {
-    Get.changeThemeMode(Pref.isDarkMode ? ThemeMode.light : ThemeMode.dark);
     Pref.isDarkMode = !Pref.isDarkMode;
+    Get.changeThemeMode(Pref.isDarkMode ? ThemeMode.dark : ThemeMode.light);
   }
 
   Widget _buildDrawer(BuildContext context) {

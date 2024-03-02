@@ -22,6 +22,10 @@ class LocationScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    VpnEngine.vpnStageSnapshot().listen((event) {
+      _homeController.vpnState.value = event;
+    });
+
     if (_controller.vpnList.isEmpty) _controller.getVpnData();
 
     _adController.ad = AdHelper.loadNativeAd(adController: _adController);
@@ -43,14 +47,14 @@ class LocationScreen extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.only(right: 20.0),
               child: IconButton(
-                  onPressed: () => {
-                        _controller.getVpnData(),
-                        if (_homeController.vpnState.value ==
-                            VpnEngine.vpnConnected)
-                          {
-                            VpnEngine.stopVpn(),
-                          }
-                      },
+                  onPressed: () {
+                    if (_homeController.vpnState.replaceAll('_', ' ') !=
+                        VpnEngine.vpnDisconnected) {
+                      VpnEngine.stopVpn();
+                    }
+
+                    _controller.getVpnData();
+                  },
                   icon: Icon(CupertinoIcons.refresh)),
             ),
           ],

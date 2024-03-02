@@ -23,7 +23,7 @@ dependencies:
   http: ^1.0.0
 
   # Converting CSV data to List
-  csv: ^5.0.2
+  csv: ^6.0.0
 
   # For Lottie Animation
   lottie: ^2.3.2
@@ -33,7 +33,7 @@ dependencies:
   hive_flutter: ^1.1.0
 
   # For integrating ads
-  google_mobile_ads: ^3.0.0
+  google_mobile_ads: ^4.0.0
 
   # For firebase
   firebase_core: ^2.14.0
