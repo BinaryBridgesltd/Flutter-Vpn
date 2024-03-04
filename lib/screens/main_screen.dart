@@ -78,7 +78,9 @@ class MainScreen extends StatelessWidget {
 
   Widget _buildBrightnessIconButton(BuildContext context) {
     return IconButton(
-      onPressed: () {
+      onPressed: () async {
+        
+
         if (Config.hideAds) {
           _toggleTheme();
           return;

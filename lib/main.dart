@@ -9,12 +9,10 @@ import 'package:vpn_basic_project/screens/home_screen.dart';
 import 'package:vpn_basic_project/screens/location_screen.dart';
 import 'package:vpn_basic_project/screens/network_location_screen.dart';
 
-import 'controllers/home_controller.dart';
 import 'helpers/ad_helper.dart';
 import 'helpers/config.dart';
 import 'helpers/pref.dart';
 import 'screens/startup_screen.dart';
-import 'services/vpn_engine.dart';
 
 //global object for accessing device screen size
 late Size mq;
@@ -75,18 +73,11 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     super.dispose();
   }
 
-  final HomeController _homeController = Get.put(HomeController());
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     super.didChangeAppLifecycleState(state);
     // Check if the app is moved to the background or terminated
-    if (state == AppLifecycleState.detached ||
-        state == AppLifecycleState.resumed) {
-      VpnEngine.vpnStageSnapshot().listen((event) {
-        _homeController.vpnState.value = event;
-      });
-    }
   }
 
   @override

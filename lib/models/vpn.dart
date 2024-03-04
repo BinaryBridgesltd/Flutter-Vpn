@@ -47,4 +47,6 @@ class Vpn {
     data['OpenVPN_ConfigData_Base64'] = openVPNConfigDataBase64;
     return data;
   }
+
+  equals(Vpn vpn) {}
 }
