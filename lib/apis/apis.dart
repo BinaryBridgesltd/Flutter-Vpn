@@ -11,7 +11,8 @@ import '../models/ping_model.dart';
 import '../models/vpn.dart';
 
 class APIs {
-  static Future<List<Vpn>> getVPNServers() async {
+  static Future<List<Vpn>> getVPNServers(
+      {required Function(double) progressCallback}) async {
     final List<Vpn> vpnList = Pref.vpnList;
     final Map<String, List<Vpn>> vpnMap = {};
 
@@ -23,35 +24,27 @@ class APIs {
       List<List<dynamic>> list = const CsvToListConverter().convert(csvString);
       final header = list[0];
 
-      final pingFutures = <Future>[];
-
-      for (int i = 1; i < list.length - 1; ++i) {
-        Map<String, dynamic> tempJson = {};
-
-        for (int j = 0; j < header.length; ++j) {
-          tempJson.addAll({header[j].toString(): list[i][j]});
+      for (int i = 1; i < list.length; ++i) {
+        if (list[i].length != header.length) {
+          // Skip rows with different lengths from the header
+          continue;
         }
 
+        Map<String, dynamic> tempJson =
+            Map.fromIterables(header.map((e) => e.toString()), list[i]);
         Vpn vpn = Vpn.fromJson(tempJson);
 
-        // Add ping test future to the list
-        pingFutures.add(performPingTest(vpn.ip).then((pingResult) {
-          // If ping successful, add VPN server to map
-          if (pingResult.status == PingStatus.success &&
-              pingResult.pingTime <= 200) {
-            if (!vpnMap.containsKey(vpn.countryLong)) {
-              vpnMap[vpn.countryLong] = [vpn];
-            } else {
-              vpnMap[vpn.countryLong]!.add(vpn);
-            }
-          }
-        }));
+        var pingResult = await _performPingTest(vpn.ip);
+        if (pingResult.status == PingStatus.success &&
+            pingResult.pingTime <= 200) {
+          vpnMap.putIfAbsent(vpn.countryLong, () => []).add(vpn);
+        }
+
+        double progress =
+            (i + 1) / list.length; // Calculate progress as a percentage
+        progressCallback(progress);
       }
 
-      // Wait for all ping tests to complete
-      await Future.wait(pingFutures);
-
-      // Update existing vpnList with new servers and replace existing ones if needed
       vpnMap.forEach((country, vpnServers) {
         if (vpnServers.isNotEmpty) {
           vpnServers.sort((a, b) => a.countryLong.compareTo(b.countryLong));
@@ -65,7 +58,6 @@ class APIs {
         }
       });
 
-      // Update Pref.vpnList
       Pref.vpnList = vpnList;
     } catch (e) {
       MyDialogs.error(msg: e.toString());
@@ -91,19 +83,16 @@ class APIs {
     }
   }
 
-  static Future<PingResult> performPingTest(String ip) async {
+  static Future<PingResult> _performPingTest(String ip) async {
     try {
       final ping = Ping(ip.toString());
       var stream = ping.stream;
-
       var pingValue = await stream.first;
 
       if (pingValue.summary == null && pingValue.error == null) {
-        // Ping was successful
         return PingResult(PingStatus.success,
             pingTime: pingValue.response!.time!.inMilliseconds);
       } else {
-        // Ping failed
         return PingResult(PingStatus.failure);
       }
     } catch (e) {

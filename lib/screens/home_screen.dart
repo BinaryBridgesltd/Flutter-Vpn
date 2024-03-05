@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:vpn_basic_project/controllers/drawer_controller.dart';
 import '../controllers/home_controller.dart';
-import '../main.dart';
 import '../models/vpn_status.dart';
 import '../services/vpn_engine.dart';
 import '../widgets/count_down_timer.dart';
@@ -11,7 +10,7 @@ import '../widgets/home_card.dart';
 import 'location_screen.dart';
 
 class HomeScreen extends StatelessWidget {
-  HomeScreen({super.key});
+  HomeScreen({Key? key}) : super(key: key);
 
   final HomeController _controller = Get.put(HomeController());
   final LeftDrawerController drawerController = Get.put(LeftDrawerController());
@@ -19,7 +18,6 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Add listener to update vpn state
     VpnEngine.vpnStageSnapshot().listen((event) {
       _controller.vpnState.value = event;
     });
@@ -91,6 +89,7 @@ class HomeScreen extends StatelessWidget {
   }
 
   Widget _vpnButton(BuildContext context) {
+    final mq = MediaQuery.of(context).size;
     return Column(
       children: [
         Semantics(
@@ -171,6 +170,7 @@ class HomeScreen extends StatelessWidget {
   }
 
   Widget _changeLocation(BuildContext context) {
+    final mq = MediaQuery.of(context).size;
     return SafeArea(
       child: Semantics(
         button: true,
@@ -178,7 +178,6 @@ class HomeScreen extends StatelessWidget {
           onTap: () async {
             final result = await Get.to(() => LocationScreen());
             if (result != null && result is String) {
-              // If a location is selected, update the UI
               _controller.vpn.update((val) {
                 val!.countryShort = result.split(':')[0];
                 val.countryLong = result.split(':')[1];
@@ -205,11 +204,13 @@ class HomeScreen extends StatelessWidget {
             child: Row(
               children: [
                 _controller.vpn.value.countryLong.isEmpty
-                    ? Icon(CupertinoIcons.globe,
+                    ? Icon(
+                        CupertinoIcons.globe,
                         color: Theme.of(context).brightness == Brightness.dark
                             ? Colors.blue.shade400
                             : Colors.black,
-                        size: 28)
+                        size: 28,
+                      )
                     : Image.asset(
                         'assets/flags/${_controller.vpn.value.countryShort.toLowerCase()}.png',
                         height: 28,
@@ -229,11 +230,13 @@ class HomeScreen extends StatelessWidget {
                   ),
                 ),
                 Spacer(),
-                Icon(Icons.keyboard_arrow_up_rounded,
-                    color: Theme.of(context).brightness == Brightness.dark
-                        ? Colors.blue.shade400
-                        : Colors.black,
-                    size: 26),
+                Icon(
+                  Icons.keyboard_arrow_up_rounded,
+                  color: Theme.of(context).brightness == Brightness.dark
+                      ? Colors.blue.shade400
+                      : Colors.black,
+                  size: 26,
+                ),
               ],
             ),
           ),

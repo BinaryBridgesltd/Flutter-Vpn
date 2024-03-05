@@ -9,10 +9,15 @@ class LocationController extends GetxController {
 
   final RxBool isLoading = false.obs;
 
+  final RxDouble loadingProgress = 0.0.obs;
+
   Future<void> getVpnData() async {
-    isLoading.value = true;
+    isLoading(true);
     vpnList.clear();
-    vpnList = await APIs.getVPNServers();
-    isLoading.value = false;
+    vpnList = await APIs.getVPNServers(progressCallback: (progress) {
+      loadingProgress.value = progress;
+    });
+    // Update your vpnList here
+    isLoading(false);
   }
 }

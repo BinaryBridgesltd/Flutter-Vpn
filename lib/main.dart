@@ -1,85 +1,33 @@
-import 'package:firebase_crashlytics/firebase_crashlytics.dart';
-import 'package:flutter/foundation.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:vpn_basic_project/firebase_options.dart';
-import 'package:vpn_basic_project/screens/home_screen.dart';
-import 'package:vpn_basic_project/screens/location_screen.dart';
-import 'package:vpn_basic_project/screens/network_location_screen.dart';
-
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'helpers/ad_helper.dart';
 import 'helpers/config.dart';
 import 'helpers/pref.dart';
+import 'screens/home_screen.dart';
+import 'screens/location_screen.dart';
+import 'screens/network_location_screen.dart';
 import 'screens/startup_screen.dart';
 
-//global object for accessing device screen size
 late Size mq;
-
-Future<void> main() async {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
 
-  //firebase initialization
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-
-  //initializing remote config
   await Config.initConfig();
-
-  //initializing hive
   await Pref.initializeHive();
-
-  //initializing ads
   await AdHelper.initAds();
 
-//enter full-screen
   SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
 
-  FlutterError.onError = (details) {
-    FirebaseCrashlytics.instance.recordFlutterFatalError(details);
-  };
+  FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterError;
 
-  PlatformDispatcher.instance.onError = (exception, stackTrace) {
-    FirebaseCrashlytics.instance
-        .recordError(exception, stackTrace, fatal: true);
-
-    return true;
-  };
-
-  //for setting orientation to portrait only
-  SystemChrome.setPreferredOrientations(
-      [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]).then((v) {
-    runApp(MyApp());
-  });
+  runApp(MyApp());
 }
 
-class MyApp extends StatefulWidget {
-  MyApp({super.key});
-
-  @override
-  State<MyApp> createState() => _MyAppState();
-}
-
-class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addObserver(this);
-  }
-
-  @override
-  void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
-    super.dispose();
-  }
-
-
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    super.didChangeAppLifecycleState(state);
-    // Check if the app is moved to the background or terminated
-  }
-
+class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetMaterialApp(
@@ -93,16 +41,13 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
             name: '/networklocationScreen',
             page: () => NetworkLocationScreen()),
       ],
-
       themeMode: ThemeMode.system,
       darkTheme: ThemeData.dark().copyWith(
           appBarTheme: AppBarTheme(centerTitle: true),
           textTheme: Theme.of(context).textTheme.apply(fontFamily: 'Sora')),
       theme: ThemeData.light().copyWith(
           appBarTheme: AppBarTheme(centerTitle: true),
-          textTheme:
-              Theme.of(context).textTheme.apply(fontFamily: 'Sora')), //theme
-
+          textTheme: Theme.of(context).textTheme.apply(fontFamily: 'Sora')),
       debugShowCheckedModeBanner: false,
     );
   }

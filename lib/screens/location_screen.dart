@@ -10,7 +10,7 @@ import '../controllers/location_controller.dart';
 import '../controllers/native_ad_controller.dart';
 import '../helpers/ad_helper.dart';
 import '../helpers/pref.dart';
-import '../main.dart';
+
 import '../services/vpn_engine.dart';
 import '../widgets/vpn_card.dart';
 
@@ -78,11 +78,12 @@ class _LocationScreenState extends State<LocationScreen> {
                 ? _noVPNFound()
                 : ListView.builder(
                     itemCount: _controller.vpnList.length,
-                    physics: BouncingScrollPhysics(),
+                    physics: BouncingScrollPhysics(
+                        decelerationRate: ScrollDecelerationRate.fast),
                     padding: EdgeInsets.all(16),
                     itemBuilder: (context, i) => Dismissible(
                       key: Key(_controller.vpnList[i].ip.toString()),
-                      direction: DismissDirection.horizontal,
+                      direction: DismissDirection.endToStart,
                       onDismissed: (direction) {
                         setState(() {
                           _controller.vpnList.removeAt(i);
@@ -115,16 +116,16 @@ class _LocationScreenState extends State<LocationScreen> {
               frameRate: FrameRate.composition,
             ),
             SizedBox(height: 10),
-            Text(
-              'Loading VPNs...',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: Theme.of(context).brightness == Brightness.dark
-                    ? Colors.blue.shade400
-                    : Colors.black,
-              ),
-            ),
+            Obx(() => Text(
+                  'Loading VPNs... ${(_controller.loadingProgress.value * 100).toStringAsFixed(2)}%',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Theme.of(context).brightness == Brightness.dark
+                        ? Colors.blue.shade400
+                        : Colors.black,
+                  ),
+                )),
           ],
         ),
       );
