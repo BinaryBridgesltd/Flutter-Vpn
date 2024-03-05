@@ -13,7 +13,7 @@ import '../models/vpn.dart';
 class APIs {
   static Future<List<Vpn>> getVPNServers(
       {required Function(double) progressCallback}) async {
-    final List<Vpn> vpnList = Pref.vpnList;
+    final List<Vpn> vpnList = [];
     final Map<String, List<Vpn>> vpnMap = {};
 
     try {
@@ -26,8 +26,7 @@ class APIs {
 
       for (int i = 1; i < list.length; ++i) {
         if (list[i].length != header.length) {
-          // Skip rows with different lengths from the header
-          continue;
+          continue; // Skip rows with different lengths from the header
         }
 
         Map<String, dynamic> tempJson =
@@ -38,30 +37,26 @@ class APIs {
         if (pingResult.status == PingStatus.success &&
             pingResult.pingTime <= 200) {
           vpnMap.putIfAbsent(vpn.countryLong, () => []).add(vpn);
-        }
 
-        double progress =
-            (i + 1) / list.length; // Calculate progress as a percentage
-        progressCallback(progress);
+          double progress = (i + 1) / list.length;
+
+          progressCallback(progress);
+        }
       }
 
       vpnMap.forEach((country, vpnServers) {
         if (vpnServers.isNotEmpty) {
           vpnServers.sort((a, b) => a.countryLong.compareTo(b.countryLong));
-          final existingIndex =
-              vpnList.indexWhere((element) => element.countryLong == country);
-          if (existingIndex != -1) {
-            vpnList[existingIndex] = vpnServers.first;
-          } else {
-            vpnList.add(vpnServers.first);
-          }
+          vpnList.add(vpnServers.first);
         }
       });
 
+      // Update Pref.vpnList
       Pref.vpnList = vpnList;
     } catch (e) {
-      MyDialogs.error(msg: e.toString());
-      log('\ngetVPNServersE: $e');
+      // Handle errors appropriately
+      print('Error fetching VPN servers: $e');
+      throw e; // Rethrow the exception or handle it gracefully
     }
 
     return vpnList;
