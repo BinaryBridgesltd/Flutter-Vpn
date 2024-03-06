@@ -78,8 +78,7 @@ class _LocationScreenState extends State<LocationScreen> {
                 ? _noVPNFound()
                 : ListView.builder(
                     itemCount: _controller.vpnList.length,
-                    physics: BouncingScrollPhysics(
-                        decelerationRate: ScrollDecelerationRate.fast),
+                    physics: ClampingScrollPhysics(),
                     padding: EdgeInsets.all(16),
                     itemBuilder: (context, i) => Dismissible(
                       key: Key(_controller.vpnList[i].ip.toString()),

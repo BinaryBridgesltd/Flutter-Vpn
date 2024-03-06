@@ -23,36 +23,50 @@ class APIs {
 
       List<List<dynamic>> list = const CsvToListConverter().convert(csvString);
       final header = list[0];
+      final totalServers = list.length - 1; // Subtract header
 
-      for (int i = 1; i < list.length; ++i) {
-        if (list[i].length != header.length) {
-          continue; // Skip rows with different lengths from the header
+      int processedCount = 0;
+
+      await Future.wait(list.skip(1).map((row) async {
+        if (row.length != header.length) {
+          return; // Skip rows with different lengths from the header
         }
 
         Map<String, dynamic> tempJson =
-            Map.fromIterables(header.map((e) => e.toString()), list[i]);
+            Map.fromIterables(header.map((e) => e.toString()), row);
         Vpn vpn = Vpn.fromJson(tempJson);
 
         var pingResult = await _performPingTest(vpn.ip);
         if (pingResult.status == PingStatus.success &&
             pingResult.pingTime <= 200) {
-          vpnMap.putIfAbsent(vpn.countryLong, () => []).add(vpn);
+          if (Pref.vpnList.any((existingVpn) => existingVpn.ip == vpn.ip)) {
+            // Update pingTime in existing VPN object
+            var existingVpn = Pref.vpnList.firstWhere((v) => v.ip == vpn.ip);
+            existingVpn.pingTime = pingResult.pingTime;
+          } else {
+            // Add new VPN server
+            vpnMap.putIfAbsent(vpn.ip, () => []).add(vpn);
+            vpn.pingTime = pingResult.pingTime;
+            vpnList.add(vpn);
+          }
+        }
 
-          double progress = (i + 1) / list.length;
+        // Increment processed count and calculate progress
+        processedCount++;
+        double progress = processedCount / totalServers;
+        progressCallback(progress);
+      }));
 
-          progressCallback(progress);
+      // Add existing VPN servers from Pref.vpnList if not already added
+      for (var existingVpn in Pref.vpnList) {
+        if (!vpnList.any((vpn) => vpn.ip == existingVpn.ip)) {
+          vpnList.add(existingVpn);
         }
       }
 
-      vpnMap.forEach((country, vpnServers) {
-        if (vpnServers.isNotEmpty) {
-          vpnServers.sort((a, b) => a.countryLong.compareTo(b.countryLong));
-          vpnList.add(vpnServers.first);
-        }
-      });
-
-      // Update Pref.vpnList
-      Pref.vpnList = vpnList;
+      // Sort and update Pref.vpnList
+      vpnList.sort((a, b) => a.countryLong.compareTo(b.countryLong));
+      Pref.vpnList = vpnList.map((vpn) => vpn.copyWith()).toList();
     } catch (e) {
       // Handle errors appropriately
       print('Error fetching VPN servers: $e');
@@ -88,7 +102,9 @@ class APIs {
         return PingResult(PingStatus.success,
             pingTime: pingValue.response!.time!.inMilliseconds);
       } else {
-        return PingResult(PingStatus.failure);
+        return PingResult(
+          PingStatus.failure,
+        );
       }
     } catch (e) {
       print('Ping test failed for IP: $ip, Error: $e');
