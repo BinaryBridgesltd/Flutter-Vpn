@@ -73,38 +73,34 @@ class _LocationScreenState extends State<LocationScreen> {
                   )
                 : null,
         body: _controller.isLoading.value
-            ? _loadingWidget(context)
+            ? _loadingWidget(context, "Loading Vpns")
             : _controller.vpnList.isEmpty
                 ? _noVPNFound()
-                : ListView.builder(
-                    itemCount: _controller.vpnList.length,
-                    physics: ClampingScrollPhysics(),
-                    padding: EdgeInsets.all(16),
-                    itemBuilder: (context, i) => Dismissible(
-                      key: Key(_controller.vpnList[i].ip.toString()),
-                      direction: DismissDirection.endToStart,
-                      onDismissed: (direction) {
-                        setState(() {
-                          _controller.vpnList.removeAt(i);
-                          Pref.vpnList = _controller.vpnList;
-                        });
-                      },
-                      background: Container(
-                        color: Colors.red,
-                        alignment: Alignment.centerRight,
-                        child: Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 20.0),
-                          child: Icon(Icons.delete, color: Colors.white),
+                : SingleChildScrollView(
+                    child: Column(
+                      children: [
+                        ListView.builder(
+                          shrinkWrap: true,
+                          itemCount: _controller.vpnList.length,
+                          physics: ClampingScrollPhysics(),
+                          padding: EdgeInsets.all(16),
+                          itemBuilder: (context, i) =>
+                              VpnCard(vpn: _controller.vpnList[i]),
                         ),
-                      ),
-                      child: VpnCard(vpn: _controller.vpnList[i]),
+                        _controller.isDataFetching.value
+                            ? Padding(
+                                padding: const EdgeInsets.only(top: 50),
+                                child: _loadingWidget(context, 'Loading More'),
+                              )
+                            : SizedBox.shrink(),
+                      ],
                     ),
                   ),
       ),
     );
   }
 
-  Widget _loadingWidget(BuildContext context) => Center(
+  Widget _loadingWidget(BuildContext context, String loadingText) => Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -116,7 +112,7 @@ class _LocationScreenState extends State<LocationScreen> {
             ),
             SizedBox(height: 10),
             Obx(() => Text(
-                  'Loading VPNs... ${(_controller.loadingProgress.value * 100).toStringAsFixed(2)}%',
+                  '$loadingText... ${(_controller.loadingProgress.value * 100).toStringAsFixed(2)}%',
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
