@@ -9,9 +9,7 @@ import '../models/vpn.dart';
 
 class LocationController extends GetxController {
   RxList<Vpn> vpnList = Pref.vpnList.obs;
-    
-  
-  
+
   RxBool isLoading = false.obs;
   final RxDouble loadingProgress = 0.0.obs;
 
@@ -59,11 +57,13 @@ class LocationController extends GetxController {
 
         var pingResult = await _performPingTest(vpn.ip);
         if (pingResult.status == PingStatus.success &&
-            pingResult.pingTime <= 200) {
+            pingResult.pingTime <= 200 &&
+            vpn.openVPNConfigDataBase64.isNotEmpty) {
           if (!Pref.vpnList.any((existingVpn) => existingVpn.ip == vpn.ip)) {
             // Add new VPN server
             vpnMap.putIfAbsent(vpn.ip, () => []).add(vpn);
             vpn.pingTime = pingResult.pingTime;
+
             vpnList.add(vpn);
           }
         }

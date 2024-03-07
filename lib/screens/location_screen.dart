@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:get/get_state_manager/get_state_manager.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:lottie/lottie.dart';
 import 'package:vpn_basic_project/controllers/home_controller.dart';
@@ -32,111 +33,102 @@ class LocationScreen extends StatelessWidget {
     _adController.ad = AdHelper.loadNativeAd(adController: _adController);
 
     return Scaffold(
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        leading: IconButton(
-          onPressed: () => Get.back(),
-          icon: Icon(CupertinoIcons.back),
-        ),
-        title: Obx(
-          () => Text(
-            'VPN Locations (${_controller.vpnList.length})',
+        appBar: AppBar(
+          automaticallyImplyLeading: false,
+          leading: IconButton(
+            onPressed: () => Get.back(),
+            icon: Icon(CupertinoIcons.back),
           ),
-        ),
-        actions: [
-          IconButton(
-            onPressed: () {
-              // Refresh VPN data when the refresh button is pressed
-              if (_homeController.vpnState.replaceAll('_', ' ') !=
-                  VpnEngine.vpnDisconnected) {
-                VpnEngine.stopVpn();
-              }
-
-              _controller.getVpnData();
-            },
-            icon: Icon(CupertinoIcons.refresh),
+          title: Obx(
+            () => Text(
+              'VPN Locations (${_controller.vpnList.length})',
+            ),
           ),
-        ],
-      ),
-      bottomNavigationBar: Config.hideAds
-          ? null
-          : _adController.ad != null && _adController.adLoaded.isTrue
-              ? SafeArea(
-                  child: SizedBox(
-                    height: 85,
-                    child: AdWidget(ad: _adController.ad!),
-                  ),
-                )
-              : null,
-      body: SafeArea(
-        child: Stack(
-          children: [
-            // Show ModalBarrier to block interaction when loading
-            ModalBarrier(
-              color: Colors.transparent,
-              dismissible: false,
-            ),
-            Column(
-              children: [
-                Expanded(
-                  flex: 8,
-                  child: Obx(() => ListView.builder(
-                        shrinkWrap: true,
-                        itemCount: _controller.vpnList.length,
-                        physics: _controller.isLoading.value
-                            ? NeverScrollableScrollPhysics() // Disable scrolling when loading
-                            : ClampingScrollPhysics(),
-                        padding: EdgeInsets.all(16),
-                        itemBuilder: (context, i) =>
-                            VpnCard(vpn: _controller.vpnList[i]),
-                      )),
-                ),
-              ],
-            ),
-            Positioned.fill(
-              child: Obx(() {
-                // Check if isLoading is true to show the loading widget
-                if (_controller.isLoading.value) {
-                  return _loadingWidget(context, 'Loading VPNS', _controller);
-                } else {
-                  return SizedBox.shrink();
+          actions: [
+            IconButton(
+              onPressed: () {
+                // Refresh VPN data when the refresh button is pressed
+                if (_homeController.vpnState.replaceAll('_', ' ') !=
+                    VpnEngine.vpnDisconnected) {
+                  VpnEngine.stopVpn();
                 }
-              }),
+
+                _controller.getVpnData();
+              },
+              icon: Icon(CupertinoIcons.refresh),
             ),
           ],
         ),
-      ),
-    );
+        bottomNavigationBar: Config.hideAds
+            ? null
+            : _adController.ad != null && _adController.adLoaded.isTrue
+                ? SafeArea(
+                    child: SizedBox(
+                      height: 85,
+                      child: AdWidget(ad: _adController.ad!),
+                    ),
+                  )
+                : null,
+        body: SafeArea(
+          child: Stack(
+            children: [
+              Obx(() => IgnorePointer(
+                    ignoring: _controller.isLoading.value,
+                    child: ListView.builder(
+                      shrinkWrap: true,
+                      itemCount: _controller.vpnList.length,
+                      physics: _controller.isLoading.value
+                          ? NeverScrollableScrollPhysics() // Disable scrolling when loading
+                          : ClampingScrollPhysics(),
+                      padding: EdgeInsets.all(16),
+                      itemBuilder: (context, i) =>
+                          VpnCard(vpn: _controller.vpnList[i]),
+                    ),
+                  )),
+              Obx(
+                () => Positioned.fill(
+                  child: _controller.isLoading.value
+                      ? _loadingWidget(context, 'Loading VPNS', _controller)
+                      : SizedBox.shrink(),
+                ),
+              )
+            ],
+          ),
+        ));
   }
 }
 
 Widget _loadingWidget(BuildContext context, String loadingText, _controller) {
-  return Container(
-    color: Theme.of(context).canvasColor.withOpacity(0.9),
-    child: Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Lottie.asset(
-          'assets/lottie/loading.json',
-          width: MediaQuery.of(context).size.width * 0.32,
-          filterQuality: FilterQuality.high,
-          frameRate: FrameRate.composition,
-          fit: BoxFit.scaleDown,
-        ),
-        Obx(
-          () => Text(
-            '$loadingText... ${(_controller.loadingProgress.value * 100).toStringAsFixed(2)}%',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: Theme.of(context).brightness == Brightness.dark
-                  ? Colors.blue.shade400
-                  : Colors.black,
+  return Center(
+    child: Container(
+      height: 196,
+      width: 244,
+      color: Theme.of(context).canvasColor.withOpacity(0.9),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Lottie.asset(
+            'assets/lottie/loading.json',
+            width: MediaQuery.of(context).size.width * 0.32,
+            filterQuality: FilterQuality.high,
+            frameRate: FrameRate.composition,
+            fit: BoxFit.scaleDown,
+          ),
+          Obx(
+            () => Text(
+              '$loadingText... ${(_controller.loadingProgress.value * 100).toStringAsFixed(2)}%',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: Theme.of(context).brightness == Brightness.dark
+                    ? Colors.blue.shade400
+                    : Colors.black,
+              ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     ),
   );
 }
