@@ -24,9 +24,7 @@ class Pref {
   static List<Vpn> get vpnList {
     List<Vpn> temp = [];
     final data = jsonDecode(_box.get('vpnList') ?? '[]');
-
     for (var i in data) temp.add(Vpn.fromJson(i));
-
     return temp;
   }
 

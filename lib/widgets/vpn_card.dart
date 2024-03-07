@@ -67,7 +67,7 @@ class VpnCard extends StatelessWidget {
 
             //title
             title: Text(
-              vpn.countryLong.toString(),
+              vpn.ip.toString(),
               style: TextStyle(
                   color: controller.vpn.value.ip == vpn.ip
                       ? Colors.white
