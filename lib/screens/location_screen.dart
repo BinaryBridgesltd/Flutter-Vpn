@@ -91,12 +91,14 @@ class LocationScreen extends StatelessWidget {
   }
 
   Widget _buildVpnList() {
-    if (_controller.vpnList.isEmpty) {
-      return Center(
-        child: Text("No VPN locations available."),
-      );
-    } else {
-      return Obx(() => IgnorePointer(
+    return Obx(() => _controller.vpnList.isEmpty
+        ? Center(
+            child: Text(
+              "No VPN locations available.",
+              style: TextStyle(color: Colors.white),
+            ),
+          )
+        : IgnorePointer(
             ignoring: _controller.isLoading.value,
             child: ListView.builder(
               shrinkWrap: true,
@@ -108,7 +110,6 @@ class LocationScreen extends StatelessWidget {
               itemBuilder: (context, i) => VpnCard(vpn: _controller.vpnList[i]),
             ),
           ));
-    }
   }
 
   Widget _loadingWidget(BuildContext context, String loadingText, _controller) {
