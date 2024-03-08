@@ -28,6 +28,8 @@ dependencies:
   # For Lottie Animation
   lottie: ^2.3.2
 
+  async: ^2.11.0
+
   # For storing data (in local storage) 
   hive: ^2.2.3
   hive_flutter: ^1.1.0
@@ -48,6 +50,7 @@ dependencies:
   dart_ping: ^5.0.0
 
   flutter_launcher_icons: "^0.13.1"
+  firebase_database: ^10.4.8
 
 flutter_launcher_icons:
   android: "launcher_icon"

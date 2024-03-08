@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:csv/csv.dart';
 import 'package:dart_ping/dart_ping.dart';
 import 'package:get/get.dart';
@@ -18,7 +20,7 @@ class LocationController extends GetxController {
     loadingProgress.value = 0.0;
 
     try {
-      await getVPNServers();
+      await _getVPNServers();
     } catch (e) {
       // Handle errors appropriately
       print('Error fetching VPN servers: $e');
@@ -32,7 +34,7 @@ class LocationController extends GetxController {
     }
   }
 
-  Future<void> getVPNServers() async {
+  Future<void> _getVPNServers() async {
     final Map<String, List<Vpn>> vpnMap = {};
 
     try {
@@ -55,15 +57,40 @@ class LocationController extends GetxController {
             Map.fromIterables(header.map((e) => e.toString()), row);
         Vpn vpn = Vpn.fromJson(tempJson);
 
+        // Check if the server's IP is already in Pref.vpnList
+        if (Pref.vpnList.any((existingVpn) => existingVpn.ip == vpn.ip)) {
+          return; // Skip this server if already exists in Pref.vpnList
+        }
+
         var pingResult = await _performPingTest(vpn.ip);
         if (pingResult.status == PingStatus.success &&
-            pingResult.pingTime <= 200 &&
+            pingResult.pingTime <= 250 &&
             vpn.openVPNConfigDataBase64.isNotEmpty) {
-          if (!Pref.vpnList.any((existingVpn) => existingVpn.ip == vpn.ip)) {
-            // Add new VPN server
-            vpnMap.putIfAbsent(vpn.ip, () => []).add(vpn);
+          if (vpnMap.containsKey(vpn.ip)) {
+            // Check if already added a VPN from this country
+            var existingVPNs = vpnMap[vpn.ip]!;
+            if (existingVPNs.length <= 3) {
+              // If not exceeded the maximum limit for this country, add VPN
+              vpnMap[vpn.ip]!.add(vpn);
+              vpn.pingTime = pingResult.pingTime;
+              vpnList.add(vpn);
+            } else {
+              // Replace the VPN with the lowest ping time if it's higher
+              var minPingIndex = existingVPNs.indexWhere((v) =>
+                  v.pingTime ==
+                  existingVPNs.map((v) => v.pingTime).reduce(min));
+              if (pingResult.pingTime < existingVPNs[minPingIndex].pingTime) {
+                existingVPNs[minPingIndex] = vpn;
+                vpn.pingTime = pingResult.pingTime;
+                vpnList
+                    .removeWhere((v) => v.ip == existingVPNs[minPingIndex].ip);
+                vpnList.add(vpn);
+              }
+            }
+          } else {
+            // Add new country
+            vpnMap.putIfAbsent(vpn.ip, () => [vpn]);
             vpn.pingTime = pingResult.pingTime;
-
             vpnList.add(vpn);
           }
         }
@@ -74,11 +101,12 @@ class LocationController extends GetxController {
         loadingProgress.value = processedCount / totalServers;
 
         print(
-            "Progress: ${loadingProgress.value}"); // Print progress for debugging
+            "Progress: ${loadingProgress.value} :  ${pingResult.status.toString()} "); // Print progress for debugging
       });
 
       // Sort and update Pref.vpnList
       vpnList.sort((a, b) => a.countryLong.compareTo(b.countryLong));
+
       Pref.vpnList = vpnList.map((vpn) => vpn.copyWith()).toList();
     } catch (e) {
       // Handle errors appropriately
@@ -89,7 +117,7 @@ class LocationController extends GetxController {
 
   static Future<PingResult> _performPingTest(String ip) async {
     try {
-      final ping = Ping(ip.toString());
+      final ping = Ping(ip.toString(), interval: 0.5);
       var stream = ping.stream;
       var pingValue = await stream.first;
 

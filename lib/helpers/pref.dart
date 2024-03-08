@@ -10,6 +10,7 @@ class Pref {
   static Future<void> initializeHive() async {
     await Hive.initFlutter();
     _box = await Hive.openBox('data');
+    
   }
 
   //for storing theme data
