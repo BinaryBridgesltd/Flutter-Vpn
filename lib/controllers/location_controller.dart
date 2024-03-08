@@ -69,8 +69,7 @@ class LocationController extends GetxController {
           if (vpnMap.containsKey(vpn.ip)) {
             // Check if already added a VPN from this country
             var existingVPNs = vpnMap[vpn.ip]!;
-            if (existingVPNs.length <= 3) {
-              // If not exceeded the maximum limit for this country, add VPN
+            if (existingVPNs.length < 3) {
               vpnMap[vpn.ip]!.add(vpn);
               vpn.pingTime = pingResult.pingTime;
               vpnList.add(vpn);
@@ -101,7 +100,7 @@ class LocationController extends GetxController {
         loadingProgress.value = processedCount / totalServers;
 
         print(
-            "Progress: ${loadingProgress.value} :  ${pingResult.status.toString()} "); // Print progress for debugging
+            "Progress: ${loadingProgress.value} :  ${pingResult.status.toString()}"); // Print progress for debugging
       });
 
       // Sort and update Pref.vpnList

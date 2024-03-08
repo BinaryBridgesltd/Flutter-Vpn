@@ -26,64 +26,68 @@ class LocationScreen extends StatelessWidget {
 
     // Fetch VPN data if the list is empty
     if (_controller.vpnList.isEmpty) {
-      _controller.getVpnData();
+      _controller.getVpnData().then((_) {
+        // Ensure the UI updates after fetching VPN data
+        if (!_controller.isLoading.value) {
+          _updateVpnListUI();
+        }
+      });
     }
 
     _adController.ad = AdHelper.loadNativeAd(adController: _adController);
 
     return Scaffold(
-        appBar: AppBar(
-          automaticallyImplyLeading: false,
-          leading: IconButton(
-            onPressed: () => Get.back(),
-            icon: Icon(CupertinoIcons.back),
+      appBar: AppBar(
+        automaticallyImplyLeading: false,
+        leading: IconButton(
+          onPressed: () => Get.back(),
+          icon: Icon(CupertinoIcons.back),
+        ),
+        title: Obx(
+          () => Text(
+            'VPN Locations (${_controller.vpnList.length})',
           ),
-          title: Obx(
-            () => Text(
-              'VPN Locations (${_controller.vpnList.length})',
-            ),
-          ),
-          actions: [
-            IconButton(
-              onPressed: () {
-                // Refresh VPN data when the refresh button is pressed
-                if (_homeController.vpnState.replaceAll('_', ' ') !=
-                    VpnEngine.vpnDisconnected) {
-                  VpnEngine.stopVpn();
-                }
+        ),
+        actions: [
+          IconButton(
+            onPressed: () {
+              // Refresh VPN data when the refresh button is pressed
+              if (_homeController.vpnState.replaceAll('_', ' ') !=
+                  VpnEngine.vpnDisconnected) {
+                VpnEngine.stopVpn();
+              }
 
-                _controller.getVpnData();
-              },
-              icon: Icon(CupertinoIcons.refresh),
-            ),
-            // IconButton(
-            //   onPressed: () => _controller.cancelGetVpnData(),
-            //   icon: Icon(CupertinoIcons.stop),
-            // ),
+              _controller.getVpnData().then((_) {
+                _updateVpnListUI();
+              });
+            },
+            icon: Icon(CupertinoIcons.refresh),
+          ),
+        ],
+      ),
+      bottomNavigationBar: Config.hideAds
+          ? null
+          : _adController.ad != null && _adController.adLoaded.isTrue
+              ? SafeArea(
+                  child: SizedBox(
+                    height: 85,
+                    child: AdWidget(ad: _adController.ad!),
+                  ),
+                )
+              : null,
+      body: SafeArea(
+        child: Stack(
+          children: [
+            _buildVpnList(),
+            Obx(
+              () => _controller.isLoading.value
+                  ? _loadingWidget(context, 'Loading VPNS', _controller)
+                  : SizedBox.shrink(),
+            )
           ],
         ),
-        bottomNavigationBar: Config.hideAds
-            ? null
-            : _adController.ad != null && _adController.adLoaded.isTrue
-                ? SafeArea(
-                    child: SizedBox(
-                      height: 85,
-                      child: AdWidget(ad: _adController.ad!),
-                    ),
-                  )
-                : null,
-        body: SafeArea(
-          child: Stack(
-            children: [
-              _buildVpnList(),
-              Obx(
-                () => _controller.isLoading.value
-                    ? _loadingWidget(context, 'Loading VPNS', _controller)
-                    : SizedBox.shrink(),
-              )
-            ],
-          ),
-        ));
+      ),
+    );
   }
 
   Widget _buildVpnList() {
@@ -143,5 +147,12 @@ class LocationScreen extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  void _updateVpnListUI() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      // Ensure UI updates after VPN data is fetched
+      _controller.update();
+    });
   }
 }
