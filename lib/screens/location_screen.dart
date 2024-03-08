@@ -49,20 +49,27 @@ class LocationScreen extends StatelessWidget {
           ),
         ),
         actions: [
-          IconButton(
-            onPressed: () {
-              // Refresh VPN data when the refresh button is pressed
-              if (_homeController.vpnState.replaceAll('_', ' ') !=
-                  VpnEngine.vpnDisconnected) {
-                VpnEngine.stopVpn();
-              }
+          Obx(() => !_controller.isLoading.value
+              ? IconButton(
+                  onPressed: () {
+                    // Refresh VPN data when the refresh button is pressed
+                    if (_homeController.vpnState.replaceAll('_', ' ') !=
+                        VpnEngine.vpnDisconnected) {
+                      VpnEngine.stopVpn();
+                    }
 
-              _controller.getVpnData().then((_) {
-                _updateVpnListUI();
-              });
-            },
-            icon: Icon(CupertinoIcons.refresh),
-          ),
+                    _controller.getVpnData().then((_) {
+                      _updateVpnListUI();
+                    });
+                  },
+                  icon: Icon(CupertinoIcons.refresh),
+                )
+              : IconButton(
+                  onPressed: () {
+                    _controller.stopProcessMethod();
+                  },
+                  icon: Icon(Icons.stop_outlined),
+                )),
         ],
       ),
       bottomNavigationBar: Config.hideAds

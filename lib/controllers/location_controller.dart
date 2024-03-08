@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math';
 
 import 'package:csv/csv.dart';
@@ -13,9 +14,11 @@ class LocationController extends GetxController {
   RxList<Vpn> vpnList = Pref.vpnList.obs;
 
   RxBool isLoading = false.obs;
+  RxBool stopProcess = false.obs; // Flag to stop the process
   final RxDouble loadingProgress = 0.0.obs;
 
   Future<void> getVpnData() async {
+    stopProcess(false);
     isLoading(true);
     loadingProgress.value = 0.0;
 
@@ -49,6 +52,10 @@ class LocationController extends GetxController {
       int processedCount = 0;
 
       await Future.forEach(list.skip(1), (row) async {
+        if (stopProcess.isTrue) {
+          return;
+        }
+
         if (row.length != header.length) {
           return; // Skip rows with different lengths from the header
         }
@@ -114,7 +121,7 @@ class LocationController extends GetxController {
     }
   }
 
-  static Future<PingResult> _performPingTest(String ip) async {
+  Future<PingResult> _performPingTest(String ip) async {
     try {
       final ping = Ping(ip.toString(), interval: 0.5);
       var stream = ping.stream;
@@ -130,5 +137,10 @@ class LocationController extends GetxController {
       print('Ping test failed for IP: $ip, Error: $e');
       return PingResult(PingStatus.failure);
     }
+  }
+
+  // Method to stop the process externally
+  void stopProcessMethod() {
+    stopProcess(true);
   }
 }
