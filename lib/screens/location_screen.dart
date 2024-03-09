@@ -13,10 +13,23 @@ import '../helpers/ad_helper.dart';
 import '../services/vpn_engine.dart';
 import '../widgets/vpn_card.dart';
 
-class LocationScreen extends StatelessWidget {
+class LocationScreen extends StatefulWidget {
+  @override
+  State<LocationScreen> createState() => _LocationScreenState();
+}
+
+class _LocationScreenState extends State<LocationScreen> {
   final _controller = LocationController();
+
   final _adController = NativeAdController();
+
   final _homeController = Get.put(HomeController());
+
+  @override
+  void dispose() {
+    _controller.stopProcessMethod(); // Stop VPN fetching process
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -38,9 +51,11 @@ class LocationScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        automaticallyImplyLeading: false,
         leading: IconButton(
-          onPressed: () => Get.back(),
+          onPressed: () => {
+            Get.back(),
+            if (_controller.isLoading.isTrue) _controller.stopProcessMethod()
+          },
           icon: Icon(CupertinoIcons.back),
         ),
         title: Obx(

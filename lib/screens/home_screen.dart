@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:vpn_basic_project/controllers/drawer_controller.dart';
+import 'package:vpn_basic_project/main.dart';
 import '../controllers/home_controller.dart';
 import '../models/vpn_status.dart';
 import '../services/vpn_engine.dart';
@@ -46,6 +47,8 @@ class HomeScreen extends StatelessWidget {
 
   Widget _buildStatusContainer(BuildContext context, VpnStatus? data) {
     return Container(
+      height: 132.0,
+      width: mq.width,
       alignment: Alignment.topCenter,
       margin: EdgeInsets.all(12.0),
       decoration: BoxDecoration(

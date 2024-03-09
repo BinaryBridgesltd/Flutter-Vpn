@@ -14,13 +14,18 @@ import 'screens/startup_screen.dart';
 late Size mq;
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
   await Firebase.initializeApp();
 
   await Config.initConfig();
   await Pref.initializeHive();
   await AdHelper.initAds();
 
-  SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
+  SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+      systemNavigationBarColor:
+          Brightness.dark == true ? Colors.white12 : Colors.white,
+      statusBarBrightness:
+          Pref.isDarkMode ? Brightness.dark : Brightness.light));
 
   FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterError;
 
